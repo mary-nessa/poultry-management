@@ -21,6 +21,9 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+    protected $primaryKey = 'id';
+    public $incrementing = false; // Disable auto-increment
+    protected $keyType = 'string'; // Use string for UUIDs
     protected $fillable = [
         'name', 'email', 'password', 'role', 'branch_id',
     ];

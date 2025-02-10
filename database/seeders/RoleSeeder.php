@@ -33,10 +33,5 @@ class RoleSeeder extends Seeder
         $salesManager->givePermissionTo(['manage sales']);
         $worker->givePermissionTo(['manage inventory']);
 
-        // Assign a role to a sample user (Modify this based on your logic)
-        $user = \App\Models\User::find(1);
-        if ($user) {
-            $user->assignRole('admin');
-        }
     }
 }
