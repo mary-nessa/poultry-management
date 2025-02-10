@@ -4,13 +4,17 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -18,9 +22,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'name', 'email', 'password', 'role', 'branch_id',
     ];
 
     /**
@@ -45,4 +47,20 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
+    }
+
+    public function dailyActivities(): HasMany
+    {
+        return $this->hasMany(DailyActivity::class, 'worker_id');
+    }
+
+    public function manager(): HasOne
+    {
+        return $this->hasOne(Manager::class, 'branch_id');
+    }
+
+
 }
