@@ -42,8 +42,7 @@ Route::middleware(['auth'])->group(function () {
     // Profile page
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
 
-    // Settings page
-    Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
+
 
     // Resource routes for your controllers
     Route::resource('users', UserController::class);

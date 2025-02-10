@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\HasUUID;
 
 class Branch extends Model
 {
+    use HasFactory, HasUUID;
     public $incrementing = false;
     protected $keyType = 'string';
 

@@ -4,25 +4,28 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Branch;
+use App\Models\Manager;
 
 class BranchController extends Controller
 {
     public function index()
     {
-        // Eager-load users and manager
-        $branches = Branch::with(['users', 'manager'])->get();
+        $branches = Branch::with(['manager.user', 'users'])->get();
         return view('branches.index', compact('branches'));
     }
 
     public function create()
     {
-        return view('branches.create');
+        if (request()->ajax()) {
+            return response()->json([]);
+        }
+        return abort(404);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'     => 'required|string|max:255',
+            'name'     => 'required|string|max:255|unique:branches',
             'location' => 'required|string|max:255',
         ]);
 
@@ -32,19 +35,24 @@ class BranchController extends Controller
 
     public function show(Branch $branch)
     {
-        $branch->load(['users', 'manager']);
-        return view('branches.show', compact('branch'));
+        if (request()->ajax()) {
+            return response()->json($branch->load(['manager.user', 'users']));
+        }
+        return abort(404);
     }
 
     public function edit(Branch $branch)
     {
-        return view('branches.edit', compact('branch'));
+        if (request()->ajax()) {
+            return response()->json($branch);
+        }
+        return abort(404);
     }
 
     public function update(Request $request, Branch $branch)
     {
         $validated = $request->validate([
-            'name'     => 'required|string|max:255',
+            'name'     => 'required|string|max:255|unique:branches,name,'.$branch->id,
             'location' => 'required|string|max:255',
         ]);
 
@@ -54,6 +62,16 @@ class BranchController extends Controller
 
     public function destroy(Branch $branch)
     {
+        // Check if branch has any users
+        if ($branch->users()->count() > 0) {
+            return back()->withErrors(['error' => 'Cannot delete branch with assigned users.']);
+        }
+
+        // Check if branch has a manager
+        if ($branch->manager) {
+            return back()->withErrors(['error' => 'Cannot delete branch with an assigned manager.']);
+        }
+
         $branch->delete();
         return redirect()->route('branches.index')->with('success', 'Branch deleted successfully.');
     }

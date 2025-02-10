@@ -4,20 +4,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\HasUUID;
 
 class BirdTransfer extends Model
 {
-    public $incrementing = false;
-    protected $keyType = 'string';
+    use HasFactory, HasUUID;
 
     protected $fillable = [
-        'bird_id', 'from_branch_id', 'to_branch_id', 'quantity', 'transfer_date', 'notes',
+        'from_branch_id',
+        'to_branch_id',
+        'user_id',
+        'quantity',
+        'bird_type',
+        'notes'
     ];
 
-    public function bird(): BelongsTo
-    {
-        return $this->belongsTo(Bird::class);
-    }
+    protected $casts = [
+        'quantity' => 'integer'
+    ];
 
     public function fromBranch(): BelongsTo
     {
@@ -27,5 +32,10 @@ class BirdTransfer extends Model
     public function toBranch(): BelongsTo
     {
         return $this->belongsTo(Branch::class, 'to_branch_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

@@ -4,20 +4,24 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\HasUUID;
 
 class EggTransfer extends Model
 {
-    public $incrementing = false;
-    protected $keyType = 'string';
+    use HasFactory, HasUUID;
 
     protected $fillable = [
-        'egg_tray_id', 'from_branch_id', 'to_branch_id', 'quantity', 'transfer_date', 'notes',
+        'from_branch_id',
+        'to_branch_id',
+        'user_id',
+        'quantity',
+        'notes'
     ];
 
-    public function eggTray(): BelongsTo
-    {
-        return $this->belongsTo(EggTray::class);
-    }
+    protected $casts = [
+        'quantity' => 'integer'
+    ];
 
     public function fromBranch(): BelongsTo
     {
@@ -27,5 +31,10 @@ class EggTransfer extends Model
     public function toBranch(): BelongsTo
     {
         return $this->belongsTo(Branch::class, 'to_branch_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }
