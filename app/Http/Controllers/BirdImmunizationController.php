@@ -6,12 +6,13 @@ use Illuminate\Http\Request;
 use App\Models\BirdImmunisation;
 use App\Models\Bird;
 
-class BirdImmunisationController extends Controller
+class BirdImmunizationController extends Controller
 {
     public function index()
     {
-        $immunisations = BirdImmunisation::with('bird')->get();
-        return view('bird_immunisations.index', compact('immunisations'));
+        $immunizations = BirdImmunisation::with(['bird.branch'])->get();
+        $birds = Bird::with('branch')->get();
+        return view('bird_immunizations.index', compact('immunizations', 'birds'));
     }
 
     public function create()

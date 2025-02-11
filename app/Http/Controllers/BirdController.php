@@ -11,7 +11,8 @@ class BirdController extends Controller
     public function index()
     {
         $birds = Bird::with('branch')->get();
-        return view('birds.index', compact('birds'));
+        $branches = Branch::all();
+        return view('birds.index', compact('birds', 'branches'));
     }
 
     public function create()

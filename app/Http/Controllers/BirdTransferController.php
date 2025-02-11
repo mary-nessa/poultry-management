@@ -11,8 +11,9 @@ class BirdTransferController extends Controller
 {
     public function index()
     {
-        $birdTransfers = BirdTransfer::with(['bird', 'fromBranch', 'toBranch'])->get();
-        return view('bird_transfers.index', compact('birdTransfers'));
+        $birdTransfers = BirdTransfer::with(['fromBranch', 'toBranch', 'user'])->get();
+        $branches = Branch::all();
+        return view('bird-transfers.index', compact('birdTransfers', 'branches'));
     }
 
     public function create()
