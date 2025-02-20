@@ -16,13 +16,11 @@ return new class extends Migration
             $table->string('type');
             $table->integer('hen_count');
             $table->integer('cock_count');
-            $table->integer('chick_count');
-            $table->timestamp('egg_laid_date')->nullable();
-            $table->timestamp('hatch_date')->nullable();
             $table->float('mortality_rate')->nullable();
-            $table->float('purchase_cost')->nullable();
-            $table->timestamp('acquisition_date')->nullable();
             $table->uuid('branch_id');
+            $table->uuid('batch_id')->nullable()->after('id');
+            $table->foreign('batch_id')->references('id')->on('bird_batches')->onDelete('set null');
+
             $table->timestamps();
 
             $table->foreign('branch_id')->references('id')->on('branches')->onDelete('cascade');

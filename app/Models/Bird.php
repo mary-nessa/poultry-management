@@ -13,9 +13,8 @@ class Bird extends Model
     use HasFactory, HasUUID;
 
     protected $fillable = [
-        'type', 'hen_count', 'cock_count', 'chick_count',
-        'egg_laid_date', 'hatch_date', 'mortality_rate',
-        'purchase_cost', 'acquisition_date', 'branch_id',
+        'type', 'hen_count', 'cock_count', 'mortality_rate',
+         'branch_id',
     ];
 
     public function branch(): BelongsTo
@@ -32,4 +31,10 @@ class Bird extends Model
     {
         return $this->hasMany(BirdImmunisation::class);
     }
+
+    public function birdBatch(): BelongsTo
+    {
+        return $this->belongsTo(BirdBatch::class);
+    }
+
 }
