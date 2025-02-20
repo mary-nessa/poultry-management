@@ -18,12 +18,13 @@ return new class extends Migration
             $table->integer('cock_count');
             $table->float('mortality_rate')->nullable();
             $table->uuid('branch_id');
-            $table->uuid('batch_id')->nullable()->after('id');
-            $table->foreign('batch_id')->references('id')->on('bird_batches')->onDelete('set null');
+            $table->uuid('batch_id')->nullable();
+    
 
             $table->timestamps();
 
             $table->foreign('branch_id')->references('id')->on('branches')->onDelete('cascade');
+            $table->foreign('batch_id')->references('id')->on('bird_batches')->onDelete('set null');
         });
     }
 

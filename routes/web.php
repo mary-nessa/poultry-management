@@ -3,6 +3,7 @@
 use App\Http\Controllers\AlertController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BirdController;
+use App\Http\Controllers\BirdBatchController;
 use App\Http\Controllers\BirdImmunizationController;
 use App\Http\Controllers\BirdTransferController;
 use App\Http\Controllers\BranchController;
@@ -49,6 +50,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('branches', BranchController::class);
     Route::resource('managers', ManagerController::class);
     Route::resource('birds', BirdController::class);
+    Route::resource('bird-batches', BirdBatchController::class);
     Route::resource('bird-immunizations', BirdImmunizationController::class);
     Route::resource('feeds', FeedController::class);
     Route::resource('expenses', ExpenseController::class);

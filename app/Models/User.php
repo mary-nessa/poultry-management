@@ -26,7 +26,7 @@ class User extends Authenticatable
     public $incrementing = false; // Disable auto-increment
     protected $keyType = 'string'; // Use string for UUIDs
     protected $fillable = [
-        'name', 'email', 'password', 'role', 'branch_id',
+        'name', 'email', 'password', 'branch_id',
     ];
 
     /**

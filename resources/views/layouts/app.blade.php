@@ -79,8 +79,9 @@
                         <i class="fas fa-chevron-right transform transition-transform duration-200" :class="{'rotate-90': openBirdManagement}"></i>
                     </button>
                     <div x-show="openBirdManagement" class="pl-12 space-y-1">
-                        <a href="{{ route('birds.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Birds</a>
-                        <a href="{{ route('bird-transfers.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Transfers</a>
+                        <a href="{{ route('bird-batches.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Bird Batches</a>
+                        <a href="{{ route('birds.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Bird Inventory</a>
+                        <a href="{{ route('bird-transfers.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Bird Transfers</a>
                         <a href="{{ route('bird-immunizations.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Immunisations</a>
                     </div>
                 </div>
@@ -98,6 +99,7 @@
                         <a href="{{ route('feeds.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Feeds</a>
                         <a href="{{ route('equipments.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Equipment</a>
                         <a href="{{ route('egg-trays.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Egg Trays</a>
+                        <a href="{{ route('egg-transfers.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Egg Transfers</a>
                     </div>
                 </div>
 

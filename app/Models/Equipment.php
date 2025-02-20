@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Equipment extends Model
 {
+    protected $table = 'equipments';
     public $incrementing = false;
     protected $keyType = 'string';
 

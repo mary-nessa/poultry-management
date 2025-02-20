@@ -39,6 +39,11 @@ class BirdBatch extends Model
         return $this->belongsTo(Branch::class);
     }
 
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
+    }
+
     public function birds()
     {
         return $this->hasMany(Bird::class);
