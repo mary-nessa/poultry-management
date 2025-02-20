@@ -11,17 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('feeds', function (Blueprint $table) {
+        Schema::create('chick_purchases', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('type');
-            $table->float('quantity_kg');
-            $table->timestamp('purchase_date');
+            $table->uuid('branch_id')->nullable();
+            $table->foreign('branch_id')->references('id')->on('branches')->onDelete('set null');
+            $table->uuid('supplier_id')->nullable();
+            $table->foreign('supplier_id')->references('id')->on('suppliers')->onDelete('set null');
+            $table->string('batch_id');
+            $table->integer('purchase_age');
+            $table->string('breed');
+            $table->integer('quantity');
             $table->float('unit_cost');
             $table->float('total_cost');
-            $table->uuid('supplier_id')->nullable();
-            $table->timestamps();
-
-            $table->foreign('supplier_id')->references('id')->on('suppliers')->onDelete('set null');
+            $table->timestamp('date');
         });
     }
 
@@ -30,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('feeds');
+        Schema::dropIfExists('chick_purchases');
     }
 };

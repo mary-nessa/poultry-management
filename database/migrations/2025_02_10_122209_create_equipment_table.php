@@ -15,7 +15,8 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name');
             $table->integer('quantity');
-            $table->float('cost');
+            $table->float('unit_cost');
+            $table->float('total_cost');
             $table->timestamp('purchase_date');
             $table->string('status')->default('Operational');
             $table->uuid('supplier_id')->nullable();

@@ -2,36 +2,48 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Traits\HasUUID;
+use Illuminate\Database\Eloquent\Model;
 
 class Expense extends Model
 {
-    use HasFactory, HasUUID;
+    use HasFactory;
 
     protected $fillable = [
-        'branch_id',
-        'user_id',
         'category',
         'amount',
         'description',
-        'expense_date'
+        'expense_date',
+        'expense_type',
+        'chick_purchase_id',
+        'feed_id',
+        'medicine_id',
+        'equipment_id',
+        'branch_id',
     ];
 
-    protected $casts = [
-        'amount' => 'decimal:2',
-        'expense_date' => 'date'
-    ];
-
-    public function branch(): BelongsTo
+    public function chickPurchase()
     {
-        return $this->belongsTo(Branch::class);
+        return $this->belongsTo(ChickPurchase::class);
     }
 
-    public function user(): BelongsTo
+    public function feed()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Feed::class);
+    }
+
+    public function medicine()
+    {
+        return $this->belongsTo(Medicine::class);
+    }
+
+    public function equipment()
+    {
+        return $this->belongsTo(Equipment::class);
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
     }
 }

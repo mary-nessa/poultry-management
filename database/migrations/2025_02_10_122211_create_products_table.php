@@ -11,14 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('products', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->enum('product_type', ['EGG', 'HEN', 'POULTRY_PRODUCT']);
-            $table->float('default_price');
-            $table->timestamps();
+            Schema::create('products', function (Blueprint $table) {
+                $table->uuid('id')->primary();
+                $table->uuid('branch_id');
+                $table->string('product_type');
+                $table->string('breed');
+                $table->string('unit_measure');
+                $table->float('default_price');
+                $table->timestamps();
 
-            $table->unique('product_type');
-        });
+                $table->unique('product_type');
+                $table->foreign('branch_id')->references('id')->on('branches')->onDelete('set null');
+            });
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Sale extends Model
 {
@@ -11,8 +12,12 @@ class Sale extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'product_type', 'quantity', 'price_per_unit', 'total_amount', 'sale_date',
-        'branch_id', 'buyer_id', 'egg_tray_id', 'product_id', 'payment_method', 'is_paid', 'balance',
+        'sale_date',
+        'branch_id',
+        'buyer_id',
+        'payment_method',
+        'is_paid',
+        'balance'
     ];
 
     public function branch(): BelongsTo
@@ -25,13 +30,10 @@ class Sale extends Model
         return $this->belongsTo(Buyer::class);
     }
 
-    public function eggTray(): BelongsTo
+    public function items(): HasMany
     {
-        return $this->belongsTo(EggTray::class);
+        return $this->hasMany(SaleItem::class);
     }
 
-    public function product(): BelongsTo
-    {
-        return $this->belongsTo(Product::class);
-    }
+
 }

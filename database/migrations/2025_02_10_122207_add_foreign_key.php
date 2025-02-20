@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('egg_productions', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('branches', function (Blueprint $table) {
+            $table->foreign('manager_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('set null');
         });
     }
 
@@ -22,6 +24,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('egg_productions');
+        Schema::table('branches', function (Blueprint $table) {
+            $table->dropForeign(['manager_id']);
+        });
     }
 };

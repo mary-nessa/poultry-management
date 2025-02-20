@@ -2,21 +2,23 @@
 
 namespace App\Models;
 
+use App\Traits\HasUUID;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Traits\HasUUID;
 
-class BirdTransfer extends Model
+class Transfer extends Model
 {
     use HasFactory, HasUUID;
 
     protected $fillable = [
+        'type',
+        'breed',
         'from_branch_id',
         'to_branch_id',
         'user_id',
+        'status',
         'quantity',
-        'bird_type',
         'notes'
     ];
 

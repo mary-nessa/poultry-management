@@ -12,13 +12,9 @@ class Buyer extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'name', 'contact_info', 'buyer_type', 'branch_id',
+        'name', 'contact_info', 'buyer_type',
     ];
 
-    public function branch(): BelongsTo
-    {
-        return $this->belongsTo(Branch::class);
-    }
 
     public function sales(): HasMany
     {

@@ -16,10 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('contact_info')->nullable();
             $table->enum('buyer_type', ['WALKIN', 'REGULAR'])->default('WALKIN');
-            $table->uuid('branch_id')->nullable();
             $table->timestamps();
-
-            $table->foreign('branch_id')->references('id')->on('branches')->onDelete('set null');
         });
     }
 

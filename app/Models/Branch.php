@@ -2,51 +2,61 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Traits\HasUUID;
+use Illuminate\Database\Eloquent\Model;
 
 class Branch extends Model
 {
-    use HasFactory, HasUUID;
-    public $incrementing = false;
-    protected $keyType = 'string';
+    use HasFactory;
 
     protected $fillable = [
-        'name', 'location',
+        'name',
+        'location',
+        'manager_id',
     ];
 
-    public function users(): HasMany
+    public function manager()
+    {
+        return $this->belongsTo(User::class, 'manager_id');
+    }
+
+    public function users()
     {
         return $this->hasMany(User::class);
     }
 
-    public function birds(): HasMany
+    public function birds()
     {
         return $this->hasMany(Bird::class);
     }
 
-    public function eggTrays(): HasMany
+    public function eggCollections()
     {
-        return $this->hasMany(EggTray::class);
+        return $this->hasMany(EggCollection::class);
     }
 
-    public function sales(): HasMany
+    public function sales()
     {
         return $this->hasMany(Sale::class);
     }
 
-    public function expenses(): HasMany
+    public function expenses()
     {
         return $this->hasMany(Expense::class);
     }
 
-    // Optionally, a helper to get the branch manager (assuming one manager per branch)
-    public function manager(): HasOne
+    public function chickPurchases()
     {
-        return $this->hasOne(Manager::class, 'branch_id');
+        return $this->hasMany(ChickPurchase::class);
     }
 
+    public function feedingLogs()
+    {
+        return $this->hasMany(FeedingLog::class);
+    }
+
+    public function healthChecks()
+    {
+        return $this->hasMany(HealthCheck::class);
+    }
 }

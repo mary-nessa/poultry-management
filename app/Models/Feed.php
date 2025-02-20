@@ -12,7 +12,7 @@ class Feed extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'type', 'quantity_kg', 'purchase_date', 'cost', 'supplier_id',
+        'type', 'quantity_kg', 'purchase_date', 'unit_cost','total_cost', 'supplier_id',
     ];
 
     public function supplier(): BelongsTo

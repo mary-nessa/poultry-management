@@ -2,69 +2,45 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Traits\HasUUID;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles, HasUUID;
+    use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $primaryKey = 'id';
-    public $incrementing = false; // Disable auto-increment
-    protected $keyType = 'string'; // Use string for UUIDs
     protected $fillable = [
-        'name', 'email', 'password', 'branch_id',
-    ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
+        'name',
+        'email',
         'password',
-        'remember_token',
+        'branch_id',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
-    public function branch(): BelongsTo
+    // A user (if not an admin) belongs to a branch.
+    public function branch()
     {
         return $this->belongsTo(Branch::class);
     }
 
-    public function dailyActivities(): HasMany
+    // A user who is a manager may manage one branch.
+    public function managedBranch()
     {
-        return $this->hasMany(DailyActivity::class, 'worker_id');
+        return $this->hasOne(Branch::class, 'manager_id');
     }
 
-    public function manager(): HasOne
+    // Relations to logs or collections (if the user is a worker)
+    public function feedingLogs()
     {
-        return $this->hasOne(Manager::class, 'branch_id');
+        return $this->hasMany(FeedingLog::class, 'worker_id');
     }
 
+    public function healthChecks()
+    {
+        return $this->hasMany(HealthCheck::class, 'worker_id');
+    }
 
+    public function eggCollections()
+    {
+        return $this->hasMany(EggCollection::class, 'collected_by_id');
+    }
 }

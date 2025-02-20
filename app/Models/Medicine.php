@@ -12,7 +12,7 @@ class Medicine extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'name', 'quantity', 'unit', 'expiry_date', 'cost', 'supplier_id',
+        'name', 'quantity', 'unit_cost', 'expiry_date', 'total_cost', 'supplier_id', 'purpose',
     ];
 
     public function supplier(): BelongsTo

@@ -13,7 +13,7 @@ class Equipment extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'name', 'quantity', 'cost', 'purchase_date', 'status', 'supplier_id',
+        'name', 'quantity', 'unit_cost', 'total_cost', 'purchase_date', 'status', 'supplier_id',
     ];
 
     public function supplier(): BelongsTo

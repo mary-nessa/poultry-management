@@ -13,18 +13,16 @@ return new class extends Migration
     {
         Schema::create('birds', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('type');
+            $table->uuid('chick_purchase_id');
             $table->integer('hen_count');
             $table->integer('cock_count');
-            $table->float('mortality_rate')->nullable();
-            $table->uuid('branch_id');
-            $table->uuid('batch_id')->nullable();
-    
+            $table->integer('total_birds');
+            $table->date('laying_cycle_start_date')->nullable();
+            $table->date('laying_cycle_end_date')->nullable();
 
             $table->timestamps();
 
-            $table->foreign('branch_id')->references('id')->on('branches')->onDelete('cascade');
-            $table->foreign('batch_id')->references('id')->on('bird_batches')->onDelete('set null');
+            $table->foreign('chick_purchase_id')->references('id')->on('chick_purchases')->onDelete('set null');
         });
     }
 

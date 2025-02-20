@@ -15,9 +15,10 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name');
             $table->integer('quantity');
-            $table->string('unit');
+            $table->string('purpose');
+            $table->float('unit_cost');
             $table->timestamp('expiry_date');
-            $table->float('cost');
+            $table->float('total_cost');
             $table->uuid('supplier_id')->nullable();
             $table->timestamps();
 

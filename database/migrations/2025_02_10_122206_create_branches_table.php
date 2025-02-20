@@ -15,7 +15,10 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name');
             $table->string('location')->nullable();
+            $table->foreignId('manager_id')->nullable();
             $table->timestamps();
+
+            $table->foreign('manager_id')->references('id')->on('users')->onDelete('set null');
         });
     }
 

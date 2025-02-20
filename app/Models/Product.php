@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
@@ -11,11 +12,11 @@ class Product extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'product_type', 'default_price',
+        'product_type', 'default_price', 'branch_id',
     ];
 
-    public function sales(): HasMany
+    public function branch(): BelongsTo
     {
-        return $this->hasMany(Sale::class);
+        return $this->belongsTo(Branch::class);
     }
 }

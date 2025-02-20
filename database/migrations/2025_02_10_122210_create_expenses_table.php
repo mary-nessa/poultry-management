@@ -18,14 +18,14 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->timestamp('expense_date');
             $table->enum('expense_type', ['RECURRING', 'TEMPORARY'])->default('TEMPORARY');
-            $table->uuid('bird_id')->nullable();
+            $table->uuid('chick_purchase_id')->nullable();
             $table->uuid('feed_id')->nullable();
             $table->uuid('medicine_id')->nullable();
             $table->uuid('equipment_id')->nullable();
-            $table->uuid('branch_id')->nullable();
+            $table->uuid('branch_id');
             $table->timestamps();
 
-            $table->foreign('bird_id')->references('id')->on('birds')->onDelete('set null');
+            $table->foreign('chick_purchase_id')->references('id')->on('chick_purchases')->onDelete('set null');
             $table->foreign('feed_id')->references('id')->on('feeds')->onDelete('set null');
             $table->foreign('medicine_id')->references('id')->on('medicines')->onDelete('set null');
             $table->foreign('equipment_id')->references('id')->on('equipments')->onDelete('set null');
