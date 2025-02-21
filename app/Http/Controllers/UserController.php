@@ -7,15 +7,17 @@ use App\Models\User;
 use App\Models\Branch;
 use App\Models\Manager;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
     public function index()
     {
         // Eager-load branch and dailyActivities relationships
-        $users = User::with(['branch', 'dailyActivities'])->get();
+        $users = User::with(['branch', 'roles'])->get();
+        $roles = Role::all();
         $branches = Branch::all();
-        return view('users.index', compact('users', 'branches'));
+        return view('users.index', compact('users', 'branches', 'roles'));
     }
 
     public function create()
@@ -103,10 +105,10 @@ class UserController extends Controller
     {
         // Delete associated manager record if exists
         Manager::where('user_id', $user->id)->delete();
-        
+
         // Delete the user
         $user->delete();
-        
+
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
 }

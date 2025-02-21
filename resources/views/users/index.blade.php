@@ -33,7 +33,15 @@
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $user->name }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $user->email }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $user->role }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">@if($user->roles->isNotEmpty())
+                                @foreach($user->roles as $role)
+                                    {{ $role->name }}
+                                @endforeach
+                            @else
+                                <button type="button" class="btn btn-primary btn-sm assign-role-btn"
+                                        data-userid="{{ $user->id }}" data-username="{{ $user->name }}">Assign</button>
+                            @endif
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $user->branch ? $user->branch->name : 'N/A' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <button @click="openShowModal({{ $user->id }})" class="text-blue-600 hover:text-blue-900 mr-3">View</button>
@@ -279,4 +287,4 @@ function userManagement() {
 }
 </script>
 @endpush
-@endsection 
+@endsection

@@ -20,7 +20,7 @@
 
     @auth
         <!-- Mobile sidebar backdrop -->
-        <div x-show="sidebarOpen" 
+        <div x-show="sidebarOpen"
              x-transition:enter="transition-opacity ease-linear duration-300"
              x-transition:enter-start="opacity-0"
              x-transition:enter-end="opacity-100"
@@ -34,7 +34,7 @@
         <!-- Sidebar -->
         <div :class="{'translate-x-0 md:sticky': sidebarOpen || window.innerWidth >= 768, '-translate-x-full': !sidebarOpen && window.innerWidth < 768}"
              class="fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transition-transform duration-300 transform md:translate-x-0 md:static md:h-screen">
-            
+
             <!-- Sidebar header -->
             <div class="flex items-center justify-between h-16 px-4 bg-blue-600 text-white">
                 <div class="flex items-center">
@@ -66,6 +66,8 @@
                         <a href="{{ route('users.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Users</a>
                         <a href="{{ route('managers.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Managers</a>
                         <a href="{{ route('branches.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Branches</a>
+                        <a href="{{ route('suppliers.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Suppliers</a>
+                        <a href="{{ route('buyers.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Buyers</a>
                     </div>
                 </div>
 
@@ -79,9 +81,8 @@
                         <i class="fas fa-chevron-right transform transition-transform duration-200" :class="{'rotate-90': openBirdManagement}"></i>
                     </button>
                     <div x-show="openBirdManagement" class="pl-12 space-y-1">
-                        <a href="{{ route('bird-batches.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Bird Batches</a>
+                        <a href="{{ route('chick-purchases.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Chick Purchase</a>
                         <a href="{{ route('birds.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Bird Inventory</a>
-                        <a href="{{ route('bird-transfers.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Bird Transfers</a>
                         <a href="{{ route('bird-immunizations.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Immunisations</a>
                     </div>
                 </div>
@@ -98,8 +99,7 @@
                     <div x-show="openInventoryManagement" class="pl-12 space-y-1">
                         <a href="{{ route('feeds.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Feeds</a>
                         <a href="{{ route('equipments.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Equipment</a>
-                        <a href="{{ route('egg-trays.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Egg Trays</a>
-                        <a href="{{ route('egg-transfers.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Egg Transfers</a>
+                        <a href="{{ route('transfers.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Transfers</a>
                     </div>
                 </div>
 
@@ -157,14 +157,14 @@
                         <button @click="open = !open" class="flex items-center space-x-3 focus:outline-none">
                             <div class="flex items-center space-x-4">
                                 <span class="text-sm font-medium text-gray-700">{{ Auth::user()->name }}</span>
-                                <img class="h-8 w-8 rounded-full object-cover border-2 border-blue-500" 
-                                     src="{{ Auth::user()->avatar ?? 'https://avatar.iran.liara.run/public' }}" 
+                                <img class="h-8 w-8 rounded-full object-cover border-2 border-blue-500"
+                                     src="{{ Auth::user()->avatar ?? 'https://avatar.iran.liara.run/public' }}"
                                      alt="User Avatar">
                             </div>
                         </button>
 
                         <!-- Dropdown menu -->
-                        <div x-show="open" 
+                        <div x-show="open"
                              @click.away="open = false"
                              x-transition:enter="transition ease-out duration-100"
                              x-transition:enter-start="transform opacity-0 scale-95"
@@ -173,7 +173,7 @@
                              x-transition:leave-start="transform opacity-100 scale-100"
                              x-transition:leave-end="transform opacity-0 scale-95"
                              class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                            
+
                             <a href="{{ route('profile') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                 <i class="fas fa-user w-5 h-5 mr-3"></i>
                                 Profile

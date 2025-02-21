@@ -7,7 +7,7 @@ use App\Models\EggTransfer;
 use App\Models\EggTray;
 use App\Models\Branch;
 
-class EggTransferController extends Controller
+class TransferController extends Controller
 {
     public function index()
     {

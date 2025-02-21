@@ -8,8 +8,9 @@ use App\Http\Controllers\BirdImmunizationController;
 use App\Http\Controllers\BirdTransferController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\BuyerController;
+use App\Http\Controllers\ChickPurchaseController;
 use App\Http\Controllers\DailyActivityController;
-use App\Http\Controllers\EggTransferController;
+use App\Http\Controllers\TransferController;
 use App\Http\Controllers\EggTrayController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\ExpenseController;
@@ -50,7 +51,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('branches', BranchController::class);
     Route::resource('managers', ManagerController::class);
     Route::resource('birds', BirdController::class);
-    Route::resource('bird-batches', BirdBatchController::class);
+    Route::resource('chick-purchases', ChickPurchaseController::class);
     Route::resource('bird-immunizations', BirdImmunizationController::class);
     Route::resource('feeds', FeedController::class);
     Route::resource('expenses', ExpenseController::class);
@@ -60,8 +61,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('sales', SaleController::class);
     Route::resource('buyers', BuyerController::class);
     Route::resource('suppliers', SupplierController::class);
-    Route::resource('egg-transfers', EggTransferController::class);
-    Route::resource('bird-transfers', BirdTransferController::class);
+    Route::resource('transfers', TransferController::class);
+
     Route::resource('daily-activities', DailyActivityController::class);
     Route::resource('expense-limits', ExpenseLimitController::class);
     Route::resource('alerts', AlertController::class);
