@@ -16,7 +16,6 @@ use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ExpenseLimitController;
 use App\Http\Controllers\FeedController;
-use App\Http\Controllers\ManagerController;
 use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SaleController;
@@ -49,7 +48,7 @@ Route::middleware(['auth'])->group(function () {
     // Resource routes for your controllers
     Route::resource('users', UserController::class);
     Route::resource('branches', BranchController::class);
-    Route::resource('managers', ManagerController::class);
+    Route::post('/assign-branch', [BranchController::class, 'assignBranch'])->name('branches.assign');
     Route::resource('birds', BirdController::class);
     Route::resource('chick-purchases', ChickPurchaseController::class);
     Route::resource('bird-immunizations', BirdImmunizationController::class);
@@ -62,7 +61,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('buyers', BuyerController::class);
     Route::resource('suppliers', SupplierController::class);
     Route::resource('transfers', TransferController::class);
-
+    Route::post('/assign-roles', [UserController::class, 'assignRoles'])->name('roles.assign');
     Route::resource('daily-activities', DailyActivityController::class);
     Route::resource('expense-limits', ExpenseLimitController::class);
     Route::resource('alerts', AlertController::class);

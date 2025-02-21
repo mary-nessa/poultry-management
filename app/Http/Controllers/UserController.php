@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Branch;
 use App\Models\Manager;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
@@ -37,7 +38,6 @@ class UserController extends Controller
             'name'      => 'required|string|max:255',
             'email'     => 'required|email|unique:users',
             'password'  => 'required|string|min:6|confirmed',
-            'role'      => 'required|string|in:ADMIN,MANAGER,WORKER',
             'branch_id' => 'nullable|exists:branches,id',
         ]);
 
@@ -56,6 +56,22 @@ class UserController extends Controller
         }
 
         return redirect()->route('users.index')->with('success', 'User created successfully.');
+    }
+    public function assignRoles(Request $request)
+    {
+//        echo ($request);
+//        die();
+
+        $user = User::findOrFail($request->user_id);
+        $roles = $request->roles;
+
+
+        DB::transaction(function () use ($user, $roles) {
+            $user->syncRoles($roles);
+        });
+
+
+        return response()->json(['status' => 'success']);
     }
 
     public function show(User $user)

@@ -33,11 +33,15 @@
                         <td class="px-6 py-4 whitespace-nowrap">{{ $branch->name }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $branch->location }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            {{ $branch->manager ? $branch->manager->user->name : 'No Manager' }}
+                            @if($branch->manager)
+                                {{ $branch->manager->name }}
+                            @else
+                                <button @click="openAssignBranchModal('{{ $branch->id }}', '{{ $branch->name }}')" class="text-blue-600 hover:text-blue-900">Assign Manager</button>
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button @click="openShowModal({{ $branch->id }})" class="text-blue-600 hover:text-blue-900 mr-3">View</button>
-                            <button @click="openEditModal({{ $branch->id }})" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
+                            <button @click="openShowModal('{{ $branch->id }}')" class="text-blue-600 hover:text-blue-900 mr-3">View</button>
+                            <button @click="openEditModal('{{ $branch->id }}')" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
                             <form action="{{ route('branches.destroy', $branch) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this branch?')">
                                 @csrf
                                 @method('DELETE')
@@ -162,6 +166,8 @@
             </div>
         </div>
     </div>
+
+    @include('partials.modals.assign-branch')
 </div>
 
 @push('scripts')
@@ -171,7 +177,10 @@ function branchManagement() {
         showCreateModal: false,
         showEditModal: false,
         showShowModal: false,
+        showAssignBranchModal: false,
         editBranchId: null,
+        assignUserBranchId: null,
+        assignUserBranchName: '',
         editBranchData: {
             name: '',
             location: ''
@@ -208,9 +217,41 @@ function branchManagement() {
             } catch (error) {
                 console.error('Error fetching branch data:', error);
             }
-        }
+        },
+
+        // Method to open the assign-branch modal.
+        openAssignBranchModal(branchId, branchName) {
+            this.assignUserBranchId = branchId;
+            this.assignUserBranchName = branchName;
+            this.showAssignBranchModal = true;
+        },
+
+        // Method to submit the assign-role form using fetch.
+        async assignBranch() {
+            event.preventDefault();
+            const form = document.getElementById('branchesForm');
+            const formData = new FormData(form);
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: params.toString()
+                });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    this.showAssignBranchModal = false;
+                    window.location.reload();
+                }
+            } catch (error) {
+
+                console.error('Error:', error);
+            }
     }
+}
 }
 </script>
 @endpush
-@endsection 
+@endsection

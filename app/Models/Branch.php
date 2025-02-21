@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\HasUUID;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Branch extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUUID;
 
     protected $fillable = [
         'name',
@@ -15,12 +18,12 @@ class Branch extends Model
         'manager_id',
     ];
 
-    public function manager()
+    public function manager(): BelongsTo
     {
         return $this->belongsTo(User::class, 'manager_id');
     }
 
-    public function users()
+    public function users() : HasMany
     {
         return $this->hasMany(User::class);
     }

@@ -38,8 +38,11 @@
                                     {{ $role->name }}
                                 @endforeach
                             @else
-                                <button type="button" class="btn btn-primary btn-sm assign-role-btn"
-                                        data-userid="{{ $user->id }}" data-username="{{ $user->name }}">Assign</button>
+                                <button type="button"
+                                        class="text-blue-600 hover:text-blue-900 text-sm font-medium"
+                                        @click="openAssignRoleModal('{{ $user->id }}', '{{ $user->name }}')">
+                                    Assign Role
+                                </button>
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $user->branch ? $user->branch->name : 'N/A' }}</td>
@@ -86,15 +89,6 @@
                             <input type="password" name="password_confirmation" id="password_confirmation" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                         </div>
                         <div class="mb-4">
-                            <label for="role" class="block text-gray-700 text-sm font-bold mb-2">Role</label>
-                            <select name="role" id="role" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                <option value="">Select Role</option>
-                                <option value="ADMIN">Admin</option>
-                                <option value="MANAGER">Manager</option>
-                                <option value="WORKER">Worker</option>
-                            </select>
-                        </div>
-                        <div class="mb-4">
                             <label for="branch_id" class="block text-gray-700 text-sm font-bold mb-2">Branch</label>
                             <select name="branch_id" id="branch_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                 <option value="">Select Branch</option>
@@ -124,7 +118,7 @@
                 <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                <form :action="'/users/' + editUserId" method="POST">
+                <form action="{{ route('users.update', 'editUserData.id') }}" method="POST">
                     @csrf
                     @method('PUT')
                     <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
@@ -231,60 +225,122 @@
             </div>
         </div>
     </div>
+    @include('partials.modals.assign-role')
 </div>
 
+
 @push('scripts')
-<script>
-function userManagement() {
-    return {
-        showCreateModal: false,
-        showEditModal: false,
-        showShowModal: false,
-        editUserId: null,
-        editUserData: {
-            name: '',
-            email: '',
-            role: '',
-            branch_id: ''
-        },
-        showUserData: {
-            name: '',
-            email: '',
-            role: '',
-            branch: null,
-            daily_activities: []
-        },
-        openCreateModal() {
-            this.showCreateModal = true;
-        },
-        async openEditModal(userId) {
-            this.editUserId = userId;
-            try {
-                const response = await fetch(`/users/${userId}/edit`);
-                const data = await response.json();
-                this.editUserData = {
-                    name: data.name,
-                    email: data.email,
-                    role: data.role,
-                    branch_id: data.branch_id
-                };
-                this.showEditModal = true;
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
-        },
-        async openShowModal(userId) {
-            try {
-                const response = await fetch(`/users/${userId}`);
-                const data = await response.json();
-                this.showUserData = data;
-                this.showShowModal = true;
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
+    <script>
+        function userManagement() {
+            return {
+                // Modal state for various modals:
+                showCreateModal: false,
+                showEditModal: false,
+                showShowModal: false,
+                showAssignRoleModal: false,
+
+                // Data for user modals:
+                editUserId: null,
+                editUserData: {
+                    name: '',
+                    email: '',
+                    role: '',
+                    branch_id: ''
+                },
+                showUserData: {
+                    name: '',
+                    email: '',
+                    role: '',
+                    branch: null,
+                    daily_activities: []
+                },
+
+                // Data for assign-role modal:
+                assignRoleUserId: '',
+                assignRoleUserName: '',
+
+                // Methods for opening modals:
+                openCreateModal() {
+                    this.showCreateModal = true;
+                },
+                async openEditModal(userId) {
+                    this.editUserId = userId;
+                    try {
+                        const response = await fetch(`/users/${userId}/edit`);
+                        const data = await response.json();
+                        this.editUserData = {
+                            name: data.name,
+                            email: data.email,
+                            role: data.role,
+                            branch_id: data.branch_id
+                        };
+                        this.showEditModal = true;
+                    } catch (error) {
+                        console.error('Error fetching user data:', error);
+                    }
+                },
+                async openShowModal(userId) {
+                    try {
+                        const response = await fetch(`/users/${userId}`);
+                        const data = await response.json();
+                        this.showUserData = data;
+                        this.showShowModal = true;
+                    } catch (error) {
+                        console.error('Error fetching user data:', error);
+                    }
+                },
+                openAssignRoleModal(userId, userName) {
+                    this.assignRoleUserId = userId;
+                    this.assignRoleUserName = userName;
+                    this.showAssignRoleModal = true;
+                },
+
+                // Method to submit the assign-role form using fetch.
+                async submitAssignRole(event) {
+                    event.preventDefault();
+                    const formData = new FormData(event.target);
+                    const params = new URLSearchParams(formData);
+
+                    try {
+                        const response = await fetch(event.target.action, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: params.toString()
+                        });
+                        const data = await response.json();
+                        if (data.status === 'success') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Role Assigned!',
+                                text: 'The role has been successfully assigned.',
+                                confirmButtonText: 'Okay'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'An error occurred while assigning the role. Please try again.',
+                                confirmButtonText: 'Okay'
+                            });
+                        }
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'An unexpected error occurred. Please try again later.',
+                            confirmButtonText: 'Okay'
+                        });
+                        console.error('Error:', error);
+                    }
+                }
+            };
         }
-    }
-}
-</script>
+    </script>
+
 @endpush
 @endsection
