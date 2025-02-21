@@ -20,7 +20,6 @@ return new class extends Migration
             $table->integer('dead_hens');
             $table->integer('sick_hens');
             $table->integer('sick_chicks');
-            $table->timestamps('check_date');
             $table->text('health_notes');
             $table->uuid('worker_id');
             $table->uuid('branch_id');

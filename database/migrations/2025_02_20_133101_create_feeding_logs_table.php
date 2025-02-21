@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('feeding_logs', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->timestamps('feeding_date');
             $table->float('feed_consumed_kg');
             $table->text('feed_notes')->nullable();
             $table->uuid('worker_id');

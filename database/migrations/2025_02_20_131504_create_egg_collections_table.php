@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('egg_collections', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->timestamps('collection_date');
             $table->integer('total_eggs');
             $table->integer('good_eggs');
             $table->integer('damaged_eggs');
