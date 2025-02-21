@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
-            $table->enum('role', ['ADMIN', 'MANAGER', 'SALES_MANAGER', 'WORKER']);
             $table->uuid('branch_id')->nullable();
             $table->timestamps();
             $table->foreign('branch_id')->references('id')->on('branches')->onDelete('set null');

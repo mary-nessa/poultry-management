@@ -20,7 +20,6 @@ class AdminSeeder extends Seeder
             'name' => 'Admin',
             'email' => 'admin@example.com',
             'password' => Hash::make('password123'),
-            'role' => 'ADMIN',
         ]);
 
         $role = Role::findByName('admin', 'web');
