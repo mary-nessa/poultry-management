@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Equipment;
@@ -100,4 +99,4 @@ class EquipmentController extends Controller
         // Redirect to the index page with a success message
         return redirect()->route('equipments.index')->with('success', 'Equipment deleted successfully');
     }
-}
+} 

@@ -2,67 +2,72 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Medicine;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 
 class MedicineController extends Controller
 {
     public function index()
     {
-        $feeds = Feed::with('supplier')->get();
-        return view('feeds.index', compact('feeds'));
+        
+        $medicines = Medicine::with('supplier')->get();
+        return view('medicine.index', compact('medicines'));
     }
 
     public function create()
     {
         $suppliers = Supplier::all();
-        return view('feeds.create', compact('suppliers'));
+        return view('medicine.create', compact('suppliers'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'type'         => 'required|string',
+            'name'         => 'required|string',
             'quantity'     => 'required|integer',
-            'cost'         => 'required|numeric',
-            'purchase_date'=> 'required|date',
+            'unit_cost'    => 'required|numeric',
             'expiry_date'  => 'nullable|date',
+            'total_cost'   => 'required|numeric',
             'supplier_id'  => 'required|exists:suppliers,id',
+            'purpose'      => 'required|string',
         ]);
 
-        Feed::create($validated);
-        return redirect()->route('feeds.index')->with('success', 'Feed created successfully.');
+        Medicine::create($validated);
+        return redirect()->route('medicine.index')->with('success', 'Medicine created successfully.');
     }
 
-    public function show(Feed $feed)
+    public function show(Medicine $medicine)
     {
-        $feed->load('supplier');
-        return view('feeds.show', compact('feed'));
+        $medicine->load('supplier');
+        return view('medicine.show', compact('medicine'));
     }
 
-    public function edit(Feed $feed)
+    public function edit(Medicine $medicine)
     {
         $suppliers = Supplier::all();
-        return view('feeds.edit', compact('feed', 'suppliers'));
+        return view('medicine.edit', compact('medicine', 'suppliers'));
     }
 
-    public function update(Request $request, Feed $feed)
+    public function update(Request $request, Medicine $medicine)
     {
         $validated = $request->validate([
-            'type'         => 'required|string',
+            'name'         => 'required|string',
             'quantity'     => 'required|integer',
-            'cost'         => 'required|numeric',
-            'purchase_date'=> 'required|date',
+            'unit_cost'    => 'required|numeric',
             'expiry_date'  => 'nullable|date',
+            'total_cost'   => 'required|numeric',
             'supplier_id'  => 'required|exists:suppliers,id',
+            'purpose'      => 'required|string',
         ]);
 
-        $feed->update($validated);
-        return redirect()->route('feeds.index')->with('success', 'Feed updated successfully.');
+        $medicine->update($validated);
+        return redirect()->route('medicine.index')->with('success', 'Medicine updated successfully.');
     }
 
-    public function destroy(Feed $feed)
+    public function destroy(Medicine $medicine)
     {
-        $feed->delete();
-        return redirect()->route('feeds.index')->with('success', 'Feed deleted successfully.');
+        $medicine->delete();
+        return redirect()->route('medicine.index')->with('success', 'Medicine deleted successfully.');
     }
 }

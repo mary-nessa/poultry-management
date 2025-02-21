@@ -11,7 +11,7 @@ use App\Http\Controllers\BuyerController;
 use App\Http\Controllers\ChickPurchaseController;
 use App\Http\Controllers\DailyActivityController;
 use App\Http\Controllers\TransferController;
-use App\Http\Controllers\EggTrayController;
+use App\Http\Controllers\EggCollectionController;
 use App\Http\Controllers\EquipmentController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ExpenseLimitController;
@@ -55,7 +55,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('feeds', FeedController::class);
     Route::resource('expenses', ExpenseController::class);
     Route::resource('equipments', EquipmentController::class);
-    Route::resource('egg-trays', EggTrayController::class);
+    Route::resource('egg-collections',  EggCollectionController::class);
     Route::resource('products', ProductController::class);
     Route::resource('sales', SaleController::class);
     Route::resource('buyers', BuyerController::class);
