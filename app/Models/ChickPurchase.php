@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Traits\HasUUID;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ChickPurchase extends Model
 {
@@ -32,8 +34,13 @@ class ChickPurchase extends Model
     }
 
     // Link to the resulting poultry records.
-    public function poultry()
+    public function poultry(): HasOne
     {
-        return $this->hasMany(Bird::class, 'chick_purchase_id');
+        return $this->hasOne(Bird::class, 'chick_purchase_id');
+    }
+
+    public function immunizationRecords(): HasMany
+    {
+        return $this->hasMany(ImmunizationRecord::class);
     }
 }

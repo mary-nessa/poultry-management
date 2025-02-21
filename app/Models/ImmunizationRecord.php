@@ -10,7 +10,7 @@ class ImmunizationRecord extends Model
     use HasFactory;
 
     protected $fillable = [
-        'chick_purchased_id',
+        'chick_purchase_id',
         'vaccine_id',
         'immunization_date',
         'next_due_date',
@@ -19,8 +19,21 @@ class ImmunizationRecord extends Model
         'age_category',
     ];
 
-    public function bird()
+    /**
+     * Relationship with ChickPurchase
+     */
+    public function chickPurchase()
     {
-        return $this->belongsTo(Bird::class);
+        return $this->belongsTo(ChickPurchase::class, 'chick_purchase_id');
     }
+
+    /**
+     * Relationship with Medicine (as a vaccine)
+     */
+    public function vaccine()
+    {
+        return $this->belongsTo(Medicine::class, 'vaccine_id');
+    }
+
+
 }

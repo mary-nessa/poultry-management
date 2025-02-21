@@ -17,7 +17,6 @@ class Bird extends Model
         'cock_count',
         'hen_count',
         'total_birds',
-        'branch_id',
         'laying_cycle_start_date',
         'laying_cycle_end_date',
     ];
@@ -35,12 +34,6 @@ class Bird extends Model
     public function chickPurchase()
     {
         return $this->belongsTo(ChickPurchase::class);
-    }
-
-
-    public function immunizationRecords()
-    {
-        return $this->hasMany(ImmunizationRecord::class);
     }
 
 }

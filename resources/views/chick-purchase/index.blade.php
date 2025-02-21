@@ -22,12 +22,10 @@
                 <thead class="bg-gray-50">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branch</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Breed</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Purchase Age</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Cost</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Cost</th>
+
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
@@ -36,13 +34,11 @@
                 @foreach($chickPurchases as $purchase)
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $purchase->branch->name }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $purchase->supplier->name }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $purchase->breed }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $purchase->purchase_age }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $purchase->quantity }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $purchase->unit_cost }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $purchase->total_cost }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $purchase->date }}</td>
+
+                        <td class="px-6 py-4 whitespace-nowrap">{{ $purchase->created_at->format('d-m-Y') }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <button @click="openShowModal('{{ $purchase->id }}')" class="text-blue-600 hover:text-blue-900 mr-3">View</button>
                             <button @click="openEditModal('{{ $purchase->id }}')" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>

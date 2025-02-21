@@ -36,6 +36,8 @@ class ChickPurchaseController extends Controller
             ]);
 
             $validated['total_cost'] = $validated['unit_cost'] * $validated['quantity'];
+            //generate meaningful batch id incrementally
+            $validated['batch_id'] = 'CHICK-' . strtoupper(substr($validated['breed'], 0, 3)) . '-' . date('Y') . '-' . ChickPurchase::count();
 
 
             ChickPurchase::create($validated);

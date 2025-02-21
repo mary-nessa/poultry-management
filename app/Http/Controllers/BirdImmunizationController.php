@@ -2,65 +2,95 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ImmunizationRecord;
+use App\Models\ChickPurchase;
+use App\Models\Medicine;
 use Illuminate\Http\Request;
-use App\Models\BirdImmunisation;
-use App\Models\Bird;
 
 class BirdImmunizationController extends Controller
 {
     public function index()
     {
-        $immunizations = BirdImmunisation::with(['bird.branch'])->get();
-        $birds = Bird::with('branch')->get();
-        return view('bird_immunizations.index', compact('immunizations', 'birds'));
+        $immunizations = ImmunizationRecord::with([
+            'chickPurchase.poultry',
+            'chickPurchase.branch',
+            'vaccine'
+        ])->get();
+
+        // Collections for the create/edit modals
+        $chickPurchases = ChickPurchase::with(['poultry', 'branch'])->get();
+        $vaccines = Medicine::all();
+
+        return view('bird_immunizations.index', compact('immunizations', 'chickPurchases', 'vaccines'));
     }
 
     public function create()
     {
-        $birds = Bird::all();
-        return view('bird_immunisations.create', compact('birds'));
+        $chickPurchases = ChickPurchase::with(['bird', 'branch'])->get();
+        $vaccines = Medicine::all();
+
+        return view('bird_immunizations.create', compact('chickPurchases', 'vaccines'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'bird_id'            => 'required|exists:birds,id',
-            'vaccine_name'       => 'required|string',
-            'immunisation_date'  => 'required|date',
-            // Validate additional fields as needed
+            'chick_purchase_id' => 'required|exists:chick_purchases,id',
+            'vaccine_id'        => 'required|exists:medicines,id',
+            'immunization_date' => 'required|date',
+            'next_due_date'     => 'required|date',
+            'notes'             => 'nullable|string',
+            'number_immunized'  => 'required|integer',
+            'age_category'      => 'required|string',
         ]);
 
-        BirdImmunisation::create($validated);
-        return redirect()->route('bird_immunisations.index')->with('success', 'Immunisation record created successfully.');
+        ImmunizationRecord::create($validated);
+
+        return redirect()
+            ->route('bird-immunizations.index')
+            ->with('success', 'Immunization record created successfully.');
     }
 
-    public function show(BirdImmunisation $birdImmunisation)
+    public function show(ImmunizationRecord $immunizationRecord)
     {
-        $birdImmunisation->load('bird');
-        return view('bird_immunisations.show', compact('birdImmunisation'));
+        // Load the related chickPurchase, bird, branch, and vaccine data
+        $immunizationRecord->load(['chickPurchase.bird', 'chickPurchase.branch', 'vaccine']);
+
+        // Return JSON for modal display
+        return response()->json($immunizationRecord);
     }
 
-    public function edit(BirdImmunisation $birdImmunisation)
+    public function edit(ImmunizationRecord $immunizationRecord)
     {
-        $birds = Bird::all();
-        return view('bird_immunisations.edit', compact('birdImmunisation', 'birds'));
+        // Return JSON for modal population
+        return response()->json($immunizationRecord);
     }
 
-    public function update(Request $request, BirdImmunisation $birdImmunisation)
+    public function update(Request $request, ImmunizationRecord $immunizationRecord)
     {
         $validated = $request->validate([
-            'bird_id'           => 'required|exists:birds,id',
-            'vaccine_name'      => 'required|string',
-            'immunisation_date' => 'required|date',
+            'chick_purchase_id' => 'required|exists:chick_purchases,id',
+            'vaccine_id'        => 'required|exists:medicines,id',
+            'immunization_date' => 'required|date',
+            'next_due_date'     => 'required|date',
+            'notes'             => 'nullable|string',
+            'number_immunized'  => 'required|integer',
+            'age_category'      => 'required|string',
         ]);
 
-        $birdImmunisation->update($validated);
-        return redirect()->route('bird_immunisations.index')->with('success', 'Immunisation record updated successfully.');
+        $immunizationRecord->update($validated);
+
+        return redirect()
+            ->route('bird-immunizations.index')
+            ->with('success', 'Immunization record updated successfully.');
     }
 
-    public function destroy(BirdImmunisation $birdImmunisation)
+    public function destroy(ImmunizationRecord $immunizationRecord)
     {
-        $birdImmunisation->delete();
-        return redirect()->route('bird_immunisations.index')->with('success', 'Immunisation record deleted successfully.');
+        $immunizationRecord->delete();
+
+        return redirect()
+            ->route('bird-immunizations.index')
+            ->with('success', 'Immunization record deleted successfully.');
     }
 }
