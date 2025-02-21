@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Branch;
-use App\Models\Manager;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
@@ -59,8 +58,6 @@ class UserController extends Controller
     }
     public function assignRoles(Request $request)
     {
-//        echo ($request);
-//        die();
 
         $user = User::findOrFail($request->user_id);
         $roles = $request->roles;
@@ -76,43 +73,54 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        if (request()->ajax()) {
-            return response()->json($user->load(['branch', 'dailyActivities']));
-        }
-        return abort(404);
+        return response()->json($user->load(['branch', 'roles']));
+
     }
 
     public function edit(User $user)
     {
-        if (request()->ajax()) {
-            return response()->json($user->load('branch'));
-        }
-        return abort(404);
+        return response()->json($user->load(['branch', 'roles']));
     }
 
     public function update(Request $request, User $user)
     {
+
         $validated = $request->validate([
             'name'      => 'required|string|max:255',
             'email'     => 'required|email|unique:users,email,'.$user->id,
-            'role'      => 'required|string|in:ADMIN,MANAGER,WORKER',
+            'role'      => 'required',
+            'old_role'  => 'required',
             'branch_id' => 'nullable|exists:branches,id',
         ]);
 
-        // Update user
-        $user->update($validated);
-
-        // Handle manager role changes
-        if ($user->role === 'MANAGER') {
-            // Create or update manager record
-            Manager::updateOrCreate(
-                ['user_id' => $user->id],
-                ['branch_id' => $validated['branch_id']]
-            );
-        } else {
-            // Remove manager record if role is changed from manager
-            Manager::where('user_id', $user->id)->delete();
+        // check if the user role has changed
+        if ($validated['role'] !== $validated['old_role']) {
+            //if the old role was not null remove the old role
+//            if ($validated['old_role'] !== null) {
+//                $user->removeRole($validated['old_role']);
+//            }
+            // If the user is a manager, create a Manager record
+            if ($validated['role'] === 'manager' && $validated['branch_id']) {
+                // assign the manager role to the user
+                $user->syncRoles('manager');
+                // change the manager_id in the branch table
+                Branch::where('id', $validated['branch_id'])->update(['manager_id' => $user->id]);
+            } else if($validated['old_role'] === 'manager' && $validated['role'] !== 'manager') {
+                //assign the new role to the user
+                $user->syncRoles($validated['role']);
+                // change the manager_id in the branch table
+                Branch::where('manager_id', $user->id)->update(['manager_id' => null]);
+            }
         }
+        //check if the other user details have changed and make adjustments
+        if ($validated['name'] !== $user->name || $validated['email'] !== $user->email) {
+            $user->name = $validated['name'];
+            $user->email = $validated['email'];
+            $user->branch_id = $validated['branch_id'];
+            $user->save();
+        }
+
+
 
         return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }

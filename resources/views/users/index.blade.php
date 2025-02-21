@@ -47,8 +47,8 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $user->branch ? $user->branch->name : 'N/A' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button @click="openShowModal({{ $user->id }})" class="text-blue-600 hover:text-blue-900 mr-3">View</button>
-                            <button @click="openEditModal({{ $user->id }})" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
+                            <button @click="openShowModal('{{ $user->id }}')" class="text-blue-600 hover:text-blue-900 mr-3">View</button>
+                            <button @click="openEditModal('{{ $user->id }}')" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
                             <form action="{{ route('users.destroy', $user) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this user?')">
                                 @csrf
                                 @method('DELETE')
@@ -118,7 +118,7 @@
                 <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                <form action="{{ route('users.update', 'editUserData.id') }}" method="POST">
+                <form :action="'/users/' + editUserId" method="POST">
                     @csrf
                     @method('PUT')
                     <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
@@ -133,12 +133,13 @@
                         </div>
                         <div class="mb-4">
                             <label for="edit_role" class="block text-gray-700 text-sm font-bold mb-2">Role</label>
-                            <select name="role" id="edit_role" x-model="editUserData.role" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            <select name="role" id="edit_role" x-model="editUserData.role" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                 <option value="">Select Role</option>
-                                <option value="ADMIN">Admin</option>
-                                <option value="MANAGER">Manager</option>
-                                <option value="WORKER">Worker</option>
+                                @foreach($roles as $role)
+                                    <option value="{{ $role->name }}">{{ $role->name }}</option>
+                                @endforeach
                             </select>
+                            <input type="hidden" name="old_role" x-model="editUserData.roles?.[0].name">
                         </div>
                         <div class="mb-4">
                             <label for="edit_branch_id" class="block text-gray-700 text-sm font-bold mb-2">Branch</label>
@@ -183,38 +184,12 @@
                         </div>
                         <div>
                             <label class="text-sm font-medium text-gray-500">Role</label>
-                            <p class="text-gray-900" x-text="showUserData.role"></p>
+                            <p class="text-gray-900" x-text="showUserData.roles?.[0].name"></p>
                         </div>
                         <div>
                             <label class="text-sm font-medium text-gray-500">Branch</label>
                             <p class="text-gray-900" x-text="showUserData.branch ? showUserData.branch.name : 'N/A'"></p>
                         </div>
-                        <template x-if="showUserData.role === 'WORKER'">
-                            <div>
-                                <h4 class="text-lg font-medium text-gray-900 mb-2">Daily Activities</h4>
-                                <template x-if="showUserData.daily_activities && showUserData.daily_activities.length > 0">
-                                    <div class="space-y-2">
-                                        <template x-for="activity in showUserData.daily_activities" :key="activity.id">
-                                            <div class="bg-gray-50 p-3 rounded">
-                                                <p class="text-sm font-medium" x-text="activity.activity_date"></p>
-                                                <template x-if="activity.feeding_notes">
-                                                    <p class="text-sm text-gray-600" x-text="'Feeding: ' + activity.feeding_notes"></p>
-                                                </template>
-                                                <template x-if="activity.health_notes">
-                                                    <p class="text-sm text-gray-600" x-text="'Health: ' + activity.health_notes"></p>
-                                                </template>
-                                                <template x-if="activity.egg_collection_count">
-                                                    <p class="text-sm text-gray-600" x-text="'Eggs Collected: ' + activity.egg_collection_count"></p>
-                                                </template>
-                                            </div>
-                                        </template>
-                                    </div>
-                                </template>
-                                <template x-if="!showUserData.daily_activities || showUserData.daily_activities.length === 0">
-                                    <p class="text-gray-500">No daily activities recorded.</p>
-                                </template>
-                            </div>
-                        </template>
                     </div>
                 </div>
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
@@ -266,14 +241,8 @@
                 async openEditModal(userId) {
                     this.editUserId = userId;
                     try {
-                        const response = await fetch(`/users/${userId}/edit`);
-                        const data = await response.json();
-                        this.editUserData = {
-                            name: data.name,
-                            email: data.email,
-                            role: data.role,
-                            branch_id: data.branch_id
-                        };
+                        const response = await fetch(`{{ route('users.edit', ':id') }}`.replace(':id', userId));
+                        this.editUserData = await response.json();
                         this.showEditModal = true;
                     } catch (error) {
                         console.error('Error fetching user data:', error);
@@ -281,9 +250,8 @@
                 },
                 async openShowModal(userId) {
                     try {
-                        const response = await fetch(`/users/${userId}`);
-                        const data = await response.json();
-                        this.showUserData = data;
+                        const response = await fetch(`{{ route('users.show', '') }}/${userId}`);
+                        this.showUserData = await response.json();
                         this.showShowModal = true;
                     } catch (error) {
                         console.error('Error fetching user data:', error);
@@ -312,29 +280,12 @@
                         });
                         const data = await response.json();
                         if (data.status === 'success') {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Role Assigned!',
-                                text: 'The role has been successfully assigned.',
-                                confirmButtonText: 'Okay'
-                            }).then(() => {
+
                                 window.location.reload();
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error!',
-                                text: 'An error occurred while assigning the role. Please try again.',
-                                confirmButtonText: 'Okay'
-                            });
+
                         }
                     } catch (error) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: 'An unexpected error occurred. Please try again later.',
-                            confirmButtonText: 'Okay'
-                        });
+
                         console.error('Error:', error);
                     }
                 }

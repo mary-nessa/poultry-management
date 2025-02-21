@@ -107,6 +107,16 @@
                             <label for="edit_location" class="block text-gray-700 text-sm font-bold mb-2">Location</label>
                             <input type="text" name="location" id="edit_location" x-model="editBranchData.location" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                         </div>
+
+                        <div class="mb-4">
+                            <label for="manager_id" class="block text-gray-700 text-sm font-bold mb-2">Manager</label>
+                            <select name="manager_id" id="manager_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                <option value="">Select Manager</option>
+                                @foreach($managers as $user)
+                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                     <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                         <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
@@ -148,7 +158,7 @@
                             <template x-if="showBranchData.users && showBranchData.users.length > 0">
                                 <ul class="space-y-2">
                                     <template x-for="user in showBranchData.users" :key="user.id">
-                                        <li class="text-gray-700" x-text="user.name + ' (' + user.role + ')'"></li>
+                                        <li class="text-gray-700" x-text="user.name "></li>
                                     </template>
                                 </ul>
                             </template>
@@ -197,7 +207,7 @@ function branchManagement() {
         async openEditModal(branchId) {
             this.editBranchId = branchId;
             try {
-                const response = await fetch(`/branches/${branchId}/edit`);
+                const response = await fetch(`{{ route('branches.edit', ':branchId') }}`.replace(':branchId', branchId));
                 const data = await response.json();
                 this.editBranchData = {
                     name: data.name,
@@ -210,7 +220,7 @@ function branchManagement() {
         },
         async openShowModal(branchId) {
             try {
-                const response = await fetch(`/branches/${branchId}`);
+                const response = await fetch(`{{ route('branches.show', '') }}/${branchId}`);
                 const data = await response.json();
                 this.showBranchData = data;
                 this.showShowModal = true;

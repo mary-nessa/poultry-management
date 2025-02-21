@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasUUID;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ChickPurchase extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUUID;
 
     protected $fillable = [
         'batch_id',
@@ -17,7 +18,6 @@ class ChickPurchase extends Model
         'quantity',
         'unit_cost',
         'total_cost',
-        'date',
         'supplier_id',
     ];
 

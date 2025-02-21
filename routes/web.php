@@ -41,7 +41,7 @@ Route::middleware(['auth'])->group(function () {
         return view('dashboard');
     })->name('dashboard');
     // Profile page
-    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::get('/profile', [UserController::class, 'index'])->name('profile');
 
 
 
@@ -62,7 +62,6 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('suppliers', SupplierController::class);
     Route::resource('transfers', TransferController::class);
     Route::post('/assign-roles', [UserController::class, 'assignRoles'])->name('roles.assign');
-    Route::resource('daily-activities', DailyActivityController::class);
     Route::resource('expense-limits', ExpenseLimitController::class);
     Route::resource('alerts', AlertController::class);
     Route::resource('medicine', MedicineController::class);

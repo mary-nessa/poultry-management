@@ -102,18 +102,15 @@ class BranchController extends Controller
 
     public function show(Branch $branch)
     {
-        if (request()->ajax()) {
-            return response()->json($branch->load(['manager.user', 'users']));
-        }
-        return abort(404);
+
+        return response()->json($branch->load(['manager', 'users']));
     }
 
     public function edit(Branch $branch)
     {
-        if (request()->ajax()) {
+
             return response()->json($branch);
-        }
-        return abort(404);
+
     }
 
     public function update(Request $request, Branch $branch)
@@ -121,9 +118,17 @@ class BranchController extends Controller
         $validated = $request->validate([
             'name'     => 'required|string|max:255|unique:branches,name,'.$branch->id,
             'location' => 'required|string|max:255',
+            'manager_id' => 'nullable|exists:users,id',
         ]);
 
-        $branch->update($validated);
+        if($validated['manager_id'] != null){
+            $branch->manager_id = $validated['manager_id'];
+        }
+        $branch->name = $validated['name'];
+        $branch->location = $validated['location'];
+        $branch->save();
+
+//        $branch->update($validated);
         return redirect()->route('branches.index')->with('success', 'Branch updated successfully.');
     }
 

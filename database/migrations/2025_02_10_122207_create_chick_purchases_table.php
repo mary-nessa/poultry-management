@@ -23,7 +23,7 @@ return new class extends Migration
             $table->integer('quantity');
             $table->float('unit_cost');
             $table->float('total_cost');
-            $table->timestamp('date');
+            $table->timestamps();
         });
     }
 

@@ -65,8 +65,6 @@
                     <div x-show="openUserManagement" class="pl-12 space-y-1">
                         <a href="{{ route('users.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Users</a>
                         <a href="{{ route('branches.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Branches</a>
-                        <a href="{{ route('suppliers.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Suppliers</a>
-                        <a href="{{ route('buyers.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Buyers</a>
                     </div>
                 </div>
 
@@ -123,10 +121,7 @@
                     <i class="fas fa-money-bill-wave w-5 h-5 mr-3"></i>
                     <span>Expenses</span>
                 </a>
-                <a href="{{ route('daily-activities.index') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 rounded-lg transition-colors duration-200">
-                    <i class="fas fa-calendar-day w-5 h-5 mr-3"></i>
-                    <span>Daily Activities</span>
-                </a>
+
                 <a href="{{ route('alerts.index') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 rounded-lg transition-colors duration-200">
                     <i class="fas fa-bell w-5 h-5 mr-3"></i>
                     <span>Alerts</span>
