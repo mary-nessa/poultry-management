@@ -10,7 +10,6 @@ class EggCollection extends Model
     use HasFactory;
 
     protected $fillable = [
-        'collection_date',
         'total_eggs',//good_eggs + damaged_eggs
         'good_eggs',
         'damaged_eggs',

@@ -10,7 +10,6 @@ class HealthCheck extends Model
     use HasFactory;
 
     protected $fillable = [
-        'check_date',
         'health_notes',
         'worker_id',
         'branch_id',

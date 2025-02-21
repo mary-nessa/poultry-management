@@ -10,7 +10,6 @@ class FeedingLog extends Model
     use HasFactory;
 
     protected $fillable = [
-        'feeding_date',
         'feed_consumed_kg',
         'feed_notes',
         'worker_id',
