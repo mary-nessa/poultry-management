@@ -3,71 +3,115 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\EggTransfer;
-use App\Models\EggTray;
+use App\Models\Transfer;
 use App\Models\Branch;
+use App\Models\User;
 
 class TransferController extends Controller
 {
     public function index()
     {
-        $eggTransfers = EggTransfer::with(['eggTray', 'fromBranch', 'toBranch'])->get();
-        return view('egg_transfers.index', compact('eggTransfers'));
+        $transfers = Transfer::with(['fromBranch', 'toBranch', 'user'])->get();
+        return view('transfers.index', compact('transfers'));
     }
 
     public function create()
     {
-        $eggTrays = EggTray::all();
         $branches = Branch::all();
-        return view('egg_transfers.create', compact('eggTrays', 'branches'));
+        $users = User::all();
+        return view('transfers.create', compact('branches', 'users'));
     }
 
     public function store(Request $request)
     {
+        // Add custom validation to check that from_branch_id and to_branch_id are different
         $validated = $request->validate([
-            'egg_tray_id'     => 'required|exists:egg_trays,id',
-            'from_branch_id'  => 'required|exists:branches,id',
-            'to_branch_id'    => 'required|exists:branches,id',
-            'quantity'        => 'required|integer',
-            'transfer_date'   => 'required|date',
-            'notes'           => 'nullable|string',
+            'type'           => 'required|string',
+            'breed'          => 'nullable|string', // Breed is nullable by default
+            'from_branch_id' => 'required|exists:branches,id|different:to_branch_id', // Ensure from and to branches are different
+            'to_branch_id'   => 'required|exists:branches,id',
+            'user_id'        => 'nullable|exists:users,id', // Will be set to current user if not provided
+            'status'         => 'required|string|in:pending,approved,rejected',
+            'quantity'       => 'required|integer|min:1',
+            'notes'          => 'nullable|string',
         ]);
 
-        EggTransfer::create($validated);
-        return redirect()->route('egg_transfers.index')->with('success', 'Egg Transfer created successfully.');
+        // Set the user_id to the authenticated user if it's not provided
+        $user_id = $request->input('user_id', auth()->user()->id);
+
+        // Breed is required only if the type is 'birds', otherwise set it to null for 'eggs'
+        $breed = ($request->type == 'birds' && !$request->breed) ? 
+                 back()->withErrors(['breed' => 'Breed is required when transferring birds.']) : 
+                 ($request->type == 'birds' ? $request->breed : null);
+
+        // Store the transfer
+        Transfer::create([
+            'type'           => $validated['type'],
+            'breed'          => $breed, // Only set breed if it's birds
+            'from_branch_id' => $validated['from_branch_id'],
+            'to_branch_id'   => $validated['to_branch_id'],
+            'user_id'        => $user_id,
+            'status'         => $validated['status'],
+            'quantity'       => $validated['quantity'],
+            'notes'          => $validated['notes'],
+        ]);
+
+        return redirect()->route('transfers.index')->with('success', 'Transfer created successfully.');
     }
 
-    public function show(EggTransfer $eggTransfer)
+    public function show(Transfer $transfer)
     {
-        $eggTransfer->load(['eggTray', 'fromBranch', 'toBranch']);
-        return view('egg_transfers.show', compact('eggTransfer'));
+        $transfer->load(['fromBranch', 'toBranch', 'user']);
+        return view('transfers.show', compact('transfer'));
     }
 
-    public function edit(EggTransfer $eggTransfer)
+    public function edit(Transfer $transfer)
     {
-        $eggTrays = EggTray::all();
         $branches = Branch::all();
-        return view('egg_transfers.edit', compact('eggTransfer', 'eggTrays', 'branches'));
+        $users = User::all();
+        return view('transfers.edit', compact('transfer', 'branches', 'users'));
     }
 
-    public function update(Request $request, EggTransfer $eggTransfer)
+    public function update(Request $request, Transfer $transfer)
     {
+        // Add custom validation to check that from_branch_id and to_branch_id are different
         $validated = $request->validate([
-            'egg_tray_id'     => 'required|exists:egg_trays,id',
-            'from_branch_id'  => 'required|exists:branches,id',
-            'to_branch_id'    => 'required|exists:branches,id',
-            'quantity'        => 'required|integer',
-            'transfer_date'   => 'required|date',
-            'notes'           => 'nullable|string',
+            'type'           => 'required|string',
+            'breed'          => 'nullable|string', // Breed is nullable by default
+            'from_branch_id' => 'required|exists:branches,id|different:to_branch_id', // Ensure from and to branches are different
+            'to_branch_id'   => 'required|exists:branches,id',
+            'user_id'        => 'nullable|exists:users,id', // Will be set to current user if not provided
+            'status'         => 'required|string|in:pending,approved,rejected',
+            'quantity'       => 'required|integer|min:1',
+            'notes'          => 'nullable|string',
         ]);
 
-        $eggTransfer->update($validated);
-        return redirect()->route('egg_transfers.index')->with('success', 'Egg Transfer updated successfully.');
+        // Set the user_id to the authenticated user if it's not provided
+        $user_id = $request->input('user_id', auth()->user()->id);
+
+        // Breed is required only if the type is 'birds', otherwise set it to null for 'eggs'
+        $breed = ($request->type == 'birds' && !$request->breed) ? 
+                 back()->withErrors(['breed' => 'Breed is required when transferring birds.']) : 
+                 ($request->type == 'birds' ? $request->breed : null);
+
+        // Update the transfer
+        $transfer->update([
+            'type'           => $validated['type'],
+            'breed'          => $breed, // Only set breed if it's birds
+            'from_branch_id' => $validated['from_branch_id'],
+            'to_branch_id'   => $validated['to_branch_id'],
+            'user_id'        => $user_id,
+            'status'         => $validated['status'],
+            'quantity'       => $validated['quantity'],
+            'notes'          => $validated['notes'],
+        ]);
+
+        return redirect()->route('transfers.index')->with('success', 'Transfer updated successfully.');
     }
 
-    public function destroy(EggTransfer $eggTransfer)
+    public function destroy(Transfer $transfer)
     {
-        $eggTransfer->delete();
-        return redirect()->route('egg_transfers.index')->with('success', 'Egg Transfer deleted successfully.');
+        $transfer->delete();
+        return redirect()->route('transfers.index')->with('success', 'Transfer deleted successfully.');
     }
 }
