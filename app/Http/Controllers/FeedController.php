@@ -11,7 +11,8 @@ class FeedController extends Controller
     public function index()
     {
         $feeds = Feed::with('supplier')->get();
-        return view('feeds.index', compact('feeds'));
+        $suppliers = Supplier::all(); // Fetch suppliers and pass them to the view
+        return view('feeds.index', compact('feeds', 'suppliers'));
     }
 
     public function create()
@@ -24,12 +25,15 @@ class FeedController extends Controller
     {
         $validated = $request->validate([
             'type'         => 'required|string',
-            'quantity'     => 'required|integer',
-            'cost'         => 'required|numeric',
+            'quantity_kg'  => 'required|integer',
+            'unit_cost'    => 'required|numeric',
             'purchase_date'=> 'required|date',
             'expiry_date'  => 'nullable|date',
-            'supplier_id'  => 'required|exists:suppliers,id',
+            'supplier_id'  => 'nullable|exists:suppliers,id', // Make supplier optional
         ]);
+
+        // Calculate total cost
+        $validated['total_cost'] = $validated['quantity_kg'] * $validated['unit_cost'];
 
         Feed::create($validated);
         return redirect()->route('feeds.index')->with('success', 'Feed created successfully.');
@@ -51,12 +55,15 @@ class FeedController extends Controller
     {
         $validated = $request->validate([
             'type'         => 'required|string',
-            'quantity'     => 'required|integer',
-            'cost'         => 'required|numeric',
+            'quantity_kg'  => 'required|integer',
+            'unit_cost'    => 'required|numeric',
             'purchase_date'=> 'required|date',
             'expiry_date'  => 'nullable|date',
-            'supplier_id'  => 'required|exists:suppliers,id',
+            'supplier_id'  => 'nullable|exists:suppliers,id', // Make supplier optional
         ]);
+
+        // Calculate total cost
+        $validated['total_cost'] = $validated['quantity_kg'] * $validated['unit_cost'];
 
         $feed->update($validated);
         return redirect()->route('feeds.index')->with('success', 'Feed updated successfully.');

@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasUUID;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Equipment extends Model
 {
+    use HasUUID;
     protected $table = 'equipments';
     public $incrementing = false;
     protected $keyType = 'string';

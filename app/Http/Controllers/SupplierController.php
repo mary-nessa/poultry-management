@@ -9,7 +9,7 @@ class SupplierController extends Controller
 {
     public function index()
     {
-        $suppliers = Supplier::all();
+        $suppliers = Supplier::with(['feeds', 'medicines', 'equipments', 'chickPurchases'])->get();
         return view('suppliers.index', compact('suppliers'));
     }
 
@@ -25,12 +25,18 @@ class SupplierController extends Controller
             'contact_info' => 'required|string',
         ]);
 
-        Supplier::create($validated);
+        $supplier = Supplier::create($validated);
+
+        // If you want to associate other models like Feed, Medicine, Equipment, etc.
+        // You can add logic here to associate those models as needed.
+        
         return redirect()->route('suppliers.index')->with('success', 'Supplier created successfully.');
     }
 
     public function show(Supplier $supplier)
     {
+        // Include related models if needed
+        $supplier->load(['feeds', 'medicines', 'equipments', 'chickPurchases']);
         return view('suppliers.show', compact('supplier'));
     }
 
@@ -52,6 +58,8 @@ class SupplierController extends Controller
 
     public function destroy(Supplier $supplier)
     {
+        // Delete associated relationships before deleting the supplier (if necessary)
+        // Example: $supplier->feeds()->delete(); (if you want to delete related feeds)
         $supplier->delete();
         return redirect()->route('suppliers.index')->with('success', 'Supplier deleted successfully.');
     }
