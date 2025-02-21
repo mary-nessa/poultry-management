@@ -21,7 +21,7 @@ return new class extends Migration
                 $table->timestamps();
 
                 $table->unique('product_type');
-                $table->foreign('branch_id')->references('id')->on('branches')->onDelete('set null');
+                $table->foreign('branch_id')->references('id')->on('branches')->onDelete('cascade');
             });
     }
 

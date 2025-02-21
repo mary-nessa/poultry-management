@@ -29,7 +29,7 @@ return new class extends Migration
             $table->foreign('feed_id')->references('id')->on('feeds')->onDelete('set null');
             $table->foreign('medicine_id')->references('id')->on('medicines')->onDelete('set null');
             $table->foreign('equipment_id')->references('id')->on('equipments')->onDelete('set null');
-            $table->foreign('branch_id')->references('id')->on('branches')->onDelete('set null');
+            $table->foreign('branch_id')->references('id')->on('branches')->onDelete('cascade');
         });
     }
 

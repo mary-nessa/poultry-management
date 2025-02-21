@@ -19,8 +19,8 @@ return new class extends Migration
             $table->uuid('branch_id');
             $table->timestamps();
 
-            $table->foreign('worker_id')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('branch_id')->references('id')->on('branches')->onDelete('set null');
+            $table->foreign('worker_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('branch_id')->references('id')->on('branches')->onDelete('cascade');
         });
     }
 
