@@ -34,28 +34,38 @@ class BirdImmunizationController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'chick_purchase_id' => 'required|exists:chick_purchases,id',
-            'vaccine_id'        => 'required|exists:medicines,id',
-            'immunization_date' => 'required|date',
-            'next_due_date'     => 'required|date',
-            'notes'             => 'nullable|string',
-            'number_immunized'  => 'required|integer',
-            'age_category'      => 'required|string',
-        ]);
+        try{
+            $validated = $request->validate([
+                'chick_purchase_id' => 'required|exists:chick_purchases,id',
+                'vaccine_id'        => 'nullable|exists:medicines,id',
+                'next_due_date'     => 'required|date',
+                'notes'             => 'nullable|string',
+                'number_immunized'  => 'required|integer',
+                'age_category'      => 'required|string',
+            ]);
 
-        ImmunizationRecord::create($validated);
+            // Add the immunization date
+            $validated['immunization_date'] = now();
 
-        return redirect()
-            ->route('bird-immunizations.index')
-            ->with('success', 'Immunization record created successfully.');
+            ImmunizationRecord::create($validated);
+
+            return redirect()
+                ->route('bird-immunizations.index')
+                ->with('success', 'Immunization record created successfully.');
+        }
+        catch (\Exception $e) {
+            \Log::info($e->getMessage());
+            return redirect()
+                ->route('bird-immunizations.index')
+                ->with('error', 'An error occurred. Please try again.');
+        }
     }
 
     public function show(ImmunizationRecord $immunizationRecord)
     {
         // Load the related chickPurchase, bird, branch, and vaccine data
-        $immunizationRecord->load(['chickPurchase.bird', 'chickPurchase.branch', 'vaccine']);
-
+        $immunizationRecord->load(['chickPurchase.branch', 'vaccine']);
+        \Log::info(response()->json($immunizationRecord));
         // Return JSON for modal display
         return response()->json($immunizationRecord);
     }

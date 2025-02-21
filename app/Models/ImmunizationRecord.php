@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasUUID;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ImmunizationRecord extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUUID;
 
     protected $fillable = [
         'chick_purchase_id',

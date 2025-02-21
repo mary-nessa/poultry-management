@@ -26,7 +26,6 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vaccine</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Next Due Date</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branch</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
                 </thead>
@@ -34,10 +33,10 @@
                 @foreach($immunizations as $immunization)
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            {{ $immunization->chickPurchase->poultry->type }}
+                            {{ $immunization->chickPurchase->batch_id }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            {{ $immunization->vaccine->name }}
+                            {{ $immunization->vaccine->name ?? 'N/A' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             {{ \Carbon\Carbon::parse($immunization->immunization_date)->format('Y-m-d') }}
@@ -45,9 +44,7 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             {{ \Carbon\Carbon::parse($immunization->next_due_date)->format('Y-m-d') }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            {{ $immunization->chickPurchase->branch->name }}
-                        </td>
+
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <button @click="openShowModal('{{ $immunization->id }}')" class="text-blue-600 hover:text-blue-900 mr-3">View</button>
                             <button @click="openEditModal('{{ $immunization->id }}')" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
@@ -79,9 +76,9 @@
                             <div class="mb-4">
                                 <label for="chick_purchase_id" class="block text-gray-700 text-sm font-bold mb-2">Bird</label>
                                 <select name="chick_purchase_id" id="chick_purchase_id" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                    <option value="">Select Bird</option>
+                                    <option value="">Select Batch</option>
                                     @foreach($chickPurchases as $chickPurchase)
-                                        <option value="{{ $chickPurchase->id }}">{{ $chickPurchase->poultry->type }} ({{ $chickPurchase->branch->name }})</option>
+                                        <option value="{{ $chickPurchase->id }}">{{ $chickPurchase->batch_id }} </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -89,17 +86,12 @@
                             <!-- Select Vaccine -->
                             <div class="mb-4">
                                 <label for="vaccine_id" class="block text-gray-700 text-sm font-bold mb-2">Vaccine</label>
-                                <select name="vaccine_id" id="vaccine_id" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                <select name="vaccine_id" id="vaccine_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                     <option value="">Select Vaccine</option>
                                     @foreach($vaccines as $vaccine)
                                         <option value="{{ $vaccine->id }}">{{ $vaccine->name }}</option>
                                     @endforeach
                                 </select>
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="immunization_date" class="block text-gray-700 text-sm font-bold mb-2">Immunization Date</label>
-                                <input type="date" name="immunization_date" id="immunization_date" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                             </div>
 
                             <div class="mb-4">
@@ -151,11 +143,11 @@
 
                             <!-- Select Chick Purchase -->
                             <div class="mb-4">
-                                <label for="edit_chick_purchase_id" class="block text-gray-700 text-sm font-bold mb-2">Bird</label>
+                                <label for="edit_chick_purchase_id" class="block text-gray-700 text-sm font-bold mb-2">Bird Batch</label>
                                 <select name="chick_purchase_id" id="edit_chick_purchase_id" x-model="editImmunizationData.chick_purchase_id" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                     <option value="">Select Bird</option>
                                     @foreach($chickPurchases as $chickPurchase)
-                                        <option value="{{ $chickPurchase->id }}">{{ $chickPurchase->poultry->type }} ({{ $chickPurchase->branch->name }})</option>
+                                        <option value="{{ $chickPurchase->id }}">{{ $chickPurchase->batch_id }} </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -163,7 +155,7 @@
                             <!-- Select Vaccine -->
                             <div class="mb-4">
                                 <label for="edit_vaccine_id" class="block text-gray-700 text-sm font-bold mb-2">Vaccine</label>
-                                <select name="vaccine_id" id="edit_vaccine_id" x-model="editImmunizationData.vaccine_id" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                <select name="vaccine_id" id="edit_vaccine_id" x-model="editImmunizationData.vaccine_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                     <option value="">Select Vaccine</option>
                                     @foreach($vaccines as $vaccine)
                                         <option value="{{ $vaccine->id }}">{{ $vaccine->name }}</option>
@@ -221,12 +213,12 @@
                         <h3 class="text-lg font-medium text-gray-900 mb-4">Immunization Details</h3>
                         <div class="space-y-4">
                             <div>
-                                <label class="text-sm font-medium text-gray-500">Bird Type</label>
-                                <p class="text-gray-900" x-text="showImmunizationData.chickPurchase ? showImmunizationData.chickPurchase.bird.type : 'N/A'"></p>
+                                <label class="text-sm font-medium text-gray-500">Bird Batch</label>
+                                <p class="text-gray-900" x-text="showImmunizationData.chick_purchase.batch_id ?? 'N/A'"></p>
                             </div>
                             <div>
                                 <label class="text-sm font-medium text-gray-500">Branch</label>
-                                <p class="text-gray-900" x-text="showImmunizationData.chickPurchase && showImmunizationData.chickPurchase.branch ? showImmunizationData.chickPurchase.branch.name : 'N/A'"></p>
+                                <p class="text-gray-900" x-text="showImmunizationData.chick_purchase.branch.name ?? 'N/A'"></p>
                             </div>
                             <div>
                                 <label class="text-sm font-medium text-gray-500">Vaccine</label>
@@ -295,10 +287,10 @@
                     },
                     async openEditModal(immunizationId) {
                         this.editImmunizationId = immunizationId;
+                        console.log('Edit Immunization ID:', immunizationId);
                         try {
-                            const response = await fetch(`/bird-immunizations/${immunizationId}/edit`);
-                            const data = await response.json();
-                            this.editImmunizationData = data;
+                            const response = await fetch(`{{ route('bird-immunizations.edit', ':immunizationId') }}`.replace(':immunizationId', immunizationId));
+                            this.editImmunizationData = await response.json();
                             this.showEditModal = true;
                         } catch (error) {
                             console.error('Error fetching immunization data:', error);
@@ -306,7 +298,7 @@
                     },
                     async openShowModal(immunizationId) {
                         try {
-                            const response = await fetch(`/bird-immunizations/${immunizationId}`);
+                            const response = await fetch(`{{ route('bird-immunizations.show', '') }}/${immunizationId}`);
                             const data = await response.json();
                             this.showImmunizationData = data;
                             this.showShowModal = true;

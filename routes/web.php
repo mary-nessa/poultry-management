@@ -51,7 +51,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/assign-branch', [BranchController::class, 'assignBranch'])->name('branches.assign');
     Route::resource('birds', BirdController::class);
     Route::resource('chick-purchases', ChickPurchaseController::class);
-    Route::resource('bird-immunizations', BirdImmunizationController::class);
+    Route::resource('bird-immunizations', BirdImmunizationController::class)->parameters(['bird-immunizations' => 'immunizationRecord']);
     Route::resource('feeds', FeedController::class);
     Route::resource('expenses', ExpenseController::class);
     Route::resource('equipments', EquipmentController::class);
