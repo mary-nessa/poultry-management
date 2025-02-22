@@ -78,8 +78,8 @@
                         <i class="fas fa-chevron-right transform transition-transform duration-200" :class="{'rotate-90': openBirdManagement}"></i>
                     </button>
                     <div x-show="openBirdManagement" class="pl-12 space-y-1">
-                        <a href="{{ route('chick-purchases.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Chick Purchase</a>
-                        <a href="{{ route('birds.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Bird Inventory</a>
+                        <a href="{{ route('chick-purchases.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Bird Purchase</a>
+                        <a href="{{ route('birds.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Bird Stock</a>
                         <a href="{{ route('bird-immunizations.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Immunisations</a>
                     </div>
                 </div>
@@ -96,8 +96,8 @@
                     <div x-show="openInventoryManagement" class="pl-12 space-y-1">
                         <a href="{{ route('feeds.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Feeds</a>
                         <a href="{{ route('equipments.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Equipment</a>
+                        <a href="{{ route('medicine.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Medicines</a>
                         <a href="{{ route('transfers.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Transfers</a>
-                    <a href="{{ route('medicine.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Medicine</a>
                     </div>
                 </div>
 
@@ -113,6 +113,8 @@
                     <div x-show="openSalesManagement" class="pl-12 space-y-1">
                         <a href="{{ route('buyers.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Buyers</a>
                         <a href="{{ route('suppliers.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Suppliers</a>
+                        <a href="{{ route('products.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Products</a>
+                        <a href="{{ route('egg-collections.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Egg Collections</a>
                         <a href="{{ route('sales.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Sales</a>
                     </div>
                 </div>
@@ -122,77 +124,6 @@
                     <i class="fas fa-money-bill-wave w-5 h-5 mr-3"></i>
                     <span>Expenses</span>
                 </a>
-
-                <!-- Daily Activities -->
-<div class="space-y-1">
-    <button @click="openDailyActivities = !openDailyActivities" class="flex items-center justify-between w-full px-4 py-2 text-gray-700 hover:bg-blue-50 rounded-lg transition-colors duration-200">
-        <div class="flex items-center">
-            <i class="fas fa-calendar-day w-5 h-5 mr-3"></i>
-            <span>Daily Activities</span>
-        </div>
-        <i class="fas fa-chevron-right transform transition-transform duration-200" :class="{'rotate-90': openDailyActivities}"></i>
-    </button>
-    <div x-show="openDailyActivities" class="pl-12 space-y-1">
-        <a href="{{ route('daily-activities.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Activities</a>
-    </div>
-</div>
-
-<!-- Health Checks -->
-<div class="space-y-1">
-    <button @click="openHealthChecks = !openHealthChecks" class="flex items-center justify-between w-full px-4 py-2 text-gray-700 hover:bg-blue-50 rounded-lg transition-colors duration-200">
-        <div class="flex items-center">
-            <i class="fas fa-heartbeat w-5 h-5 mr-3"></i>
-            <span>Health Checks</span>
-        </div>
-        <i class="fas fa-chevron-right transform transition-transform duration-200" :class="{'rotate-90': openHealthChecks}"></i>
-    </button>
-    <div x-show="openHealthChecks" class="pl-12 space-y-1">
-        <a href="{{ route('health-checks.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Checkups</a>
-    </div>
-</div>
-
-<!-- Feeding Logs -->
-<div class="space-y-1">
-    <button @click="openFeedingLogs = !openFeedingLogs" class="flex items-center justify-between w-full px-4 py-2 text-gray-700 hover:bg-blue-50 rounded-lg transition-colors duration-200">
-        <div class="flex items-center">
-            <i class="fas fa-utensils w-5 h-5 mr-3"></i>
-            <span>Feeding Logs</span>
-        </div>
-        <i class="fas fa-chevron-right transform transition-transform duration-200" :class="{'rotate-90': openFeedingLogs}"></i>
-    </button>
-    <div x-show="openFeedingLogs" class="pl-12 space-y-1">
-        <a href="{{ route('feeding-logs.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Logs</a>
-    </div>
-</div>
-
-<!-- General Inventory -->
-<div class="space-y-1">
-    <button @click="openGeneralInventory = !openGeneralInventory" class="flex items-center justify-between w-full px-4 py-2 text-gray-700 hover:bg-blue-50 rounded-lg transition-colors duration-200">
-        <div class="flex items-center">
-            <i class="fas fa-archive w-5 h-5 mr-3"></i>
-            <span>General Inventory</span>
-        </div>
-        <i class="fas fa-chevron-right transform transition-transform duration-200" :class="{'rotate-90': openGeneralInventory}"></i>
-    </button>
-    <div x-show="openGeneralInventory" class="pl-12 space-y-1">
-        <a href="{{ route('inventory.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Inventory</a>
-    </div>
-</div>
-
-<!-- Product Management -->
-<div class="space-y-1">
-    <button @click="openProductManagement = !openProductManagement" class="flex items-center justify-between w-full px-4 py-2 text-gray-700 hover:bg-blue-50 rounded-lg transition-colors duration-200">
-        <div class="flex items-center">
-            <i class="fas fa-cogs w-5 h-5 mr-3"></i>
-            <span>Product Management</span>
-        </div>
-        <i class="fas fa-chevron-right transform transition-transform duration-200" :class="{'rotate-90': openProductManagement}"></i>
-    </button>
-    <div x-show="openProductManagement" class="pl-12 space-y-1">
-        <a href="{{ route('products.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Products</a>
-    </div>
-</div>
-
 
                 <a href="{{ route('alerts.index') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 rounded-lg transition-colors duration-200">
                     <i class="fas fa-bell w-5 h-5 mr-3"></i>

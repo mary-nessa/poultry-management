@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Managers')
+@section('title', 'Products')
 
 @section('content')
-<div class="container mx-auto px-4 py-6" x-data="managerManagement()">
+<div class="container mx-auto px-4 py-6" x-data="productManagement()">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">Branch Managers</h1>
+        <h1 class="text-3xl font-bold text-gray-900">Products</h1>
         <button @click="openCreateModal()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-            Add New Manager
+            Add New Product
         </button>
     </div>
 
@@ -21,22 +21,26 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Manager Name</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Breed</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Measure</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Default Price</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branch</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-                @foreach($managers as $manager)
+                @foreach($products as $product)
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $manager->user->name }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $manager->user->email }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $manager->branch->name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ $product->product_type }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ $product->breed }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ $product->unit_measure }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">KES {{ number_format($product->default_price, 2) }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ $product->branch->name }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button @click="openShowModal({{ $manager->id }})" class="text-blue-600 hover:text-blue-900 mr-3">View</button>
-                            <button @click="openEditModal({{ $manager->id }})" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
-                            <form action="{{ route('managers.destroy', $manager) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this manager?')">
+                            <button @click="openShowModal('{{ $product->id }}')" class="text-blue-600 hover:text-blue-900 mr-3">View</button>
+                            <button @click="openEditModal('{{ $product->id }}')" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
+                            <form action="{{ route('products.destroy', $product) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this product?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
@@ -48,26 +52,38 @@
         </table>
     </div>
 
-    <!-- Create Manager Modal -->
+    <!-- Create Product Modal -->
     <div x-show="showCreateModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
         <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 transition-opacity" aria-hidden="true">
                 <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                <form action="{{ route('managers.store') }}" method="POST">
+                <form action="{{ route('products.store') }}" method="POST">
                     @csrf
                     <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Create New Manager</h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Create New Product</h3>
+                        
                         <div class="mb-4">
-                            <label for="user_id" class="block text-gray-700 text-sm font-bold mb-2">Select User</label>
-                            <select name="user_id" id="user_id" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                <option value="">Select User</option>
-                                @foreach($users as $user)
-                                    <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
-                                @endforeach
-                            </select>
+                            <label for="product_type" class="block text-gray-700 text-sm font-bold mb-2">Product Type</label>
+                            <input type="text" name="product_type" id="product_type" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                         </div>
+
+                        <div class="mb-4">
+                            <label for="breed" class="block text-gray-700 text-sm font-bold mb-2">Breed</label>
+                            <input type="text" name="breed" id="breed" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="unit_measure" class="block text-gray-700 text-sm font-bold mb-2">Unit Measure</label>
+                            <input type="text" name="unit_measure" id="unit_measure" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="default_price" class="block text-gray-700 text-sm font-bold mb-2">Default Price</label>
+                            <input type="number" step="0.01" name="default_price" id="default_price" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        </div>
+
                         <div class="mb-4">
                             <label for="branch_id" class="block text-gray-700 text-sm font-bold mb-2">Branch</label>
                             <select name="branch_id" id="branch_id" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
@@ -91,30 +107,42 @@
         </div>
     </div>
 
-    <!-- Edit Manager Modal -->
+    <!-- Edit Product Modal -->
     <div x-show="showEditModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
         <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 transition-opacity" aria-hidden="true">
                 <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                <form :action="'/managers/' + editManagerId" method="POST">
+                <form :action="'/products/' + editProductId" method="POST">
                     @csrf
                     @method('PUT')
                     <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Edit Manager</h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Edit Product</h3>
+                        
                         <div class="mb-4">
-                            <label for="edit_user_id" class="block text-gray-700 text-sm font-bold mb-2">Select User</label>
-                            <select name="user_id" id="edit_user_id" x-model="editManagerData.user_id" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                                <option value="">Select User</option>
-                                @foreach($users as $user)
-                                    <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
-                                @endforeach
-                            </select>
+                            <label for="edit_product_type" class="block text-gray-700 text-sm font-bold mb-2">Product Type</label>
+                            <input type="text" name="product_type" id="edit_product_type" x-model="editProductData.product_type" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                         </div>
+
+                        <div class="mb-4">
+                            <label for="edit_breed" class="block text-gray-700 text-sm font-bold mb-2">Breed</label>
+                            <input type="text" name="breed" id="edit_breed" x-model="editProductData.breed" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="edit_unit_measure" class="block text-gray-700 text-sm font-bold mb-2">Unit Measure</label>
+                            <input type="text" name="unit_measure" id="edit_unit_measure" x-model="editProductData.unit_measure" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="edit_default_price" class="block text-gray-700 text-sm font-bold mb-2">Default Price</label>
+                            <input type="number" step="0.01" name="default_price" id="edit_default_price" x-model="editProductData.default_price" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        </div>
+
                         <div class="mb-4">
                             <label for="edit_branch_id" class="block text-gray-700 text-sm font-bold mb-2">Branch</label>
-                            <select name="branch_id" id="edit_branch_id" x-model="editManagerData.branch_id" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            <select name="branch_id" id="edit_branch_id" x-model="editProductData.branch_id" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                 <option value="">Select Branch</option>
                                 @foreach($branches as $branch)
                                     <option value="{{ $branch->id }}">{{ $branch->name }}</option>
@@ -135,7 +163,7 @@
         </div>
     </div>
 
-    <!-- Show Manager Modal -->
+    <!-- Show Product Modal -->
     <div x-show="showShowModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
         <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 transition-opacity" aria-hidden="true">
@@ -143,19 +171,27 @@
             </div>
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Manager Details</h3>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Product Details</h3>
                     <div class="space-y-4">
                         <div>
-                            <label class="text-sm font-medium text-gray-500">Manager Name</label>
-                            <p class="text-gray-900" x-text="showManagerData.user ? showManagerData.user.name : ''"></p>
+                            <label class="text-sm font-medium text-gray-500">Product Type</label>
+                            <p class="text-gray-900" x-text="showProductData.product_type"></p>
                         </div>
                         <div>
-                            <label class="text-sm font-medium text-gray-500">Email</label>
-                            <p class="text-gray-900" x-text="showManagerData.user ? showManagerData.user.email : ''"></p>
+                            <label class="text-sm font-medium text-gray-500">Breed</label>
+                            <p class="text-gray-900" x-text="showProductData.breed"></p>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-500">Unit Measure</label>
+                            <p class="text-gray-900" x-text="showProductData.unit_measure"></p>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-500">Default Price</label>
+                            <p class="text-gray-900" x-text="'KES ' + showProductData.default_price"></p>
                         </div>
                         <div>
                             <label class="text-sm font-medium text-gray-500">Branch</label>
-                            <p class="text-gray-900" x-text="showManagerData.branch ? showManagerData.branch.name : ''"></p>
+                            <p class="text-gray-900" x-text="showProductData.branch ? showProductData.branch.name : 'N/A'"></p>
                         </div>
                     </div>
                 </div>
@@ -171,45 +207,48 @@
 
 @push('scripts')
 <script>
-function managerManagement() {
+function productManagement() {
     return {
         showCreateModal: false,
         showEditModal: false,
         showShowModal: false,
-        editManagerId: null,
-        editManagerData: {
-            user_id: '',
+        editProductId: null,
+        editProductData: {
+            product_type: '',
+            breed: '',
+            unit_measure: '',
+            default_price: '',
             branch_id: ''
         },
-        showManagerData: {
-            user: null,
+        showProductData: {
+            product_type: '',
+            breed: '',
+            unit_measure: '',
+            default_price: '',
             branch: null
         },
         openCreateModal() {
             this.showCreateModal = true;
         },
-        async openEditModal(managerId) {
-            this.editManagerId = managerId;
+        async openEditModal(productId) {
+            this.editProductId = productId;
             try {
-                const response = await fetch(`/managers/${managerId}/edit`);
+                const response = await fetch(`/products/${productId}/edit`);
                 const data = await response.json();
-                this.editManagerData = {
-                    user_id: data.user_id,
-                    branch_id: data.branch_id
-                };
+                this.editProductData = data;
                 this.showEditModal = true;
             } catch (error) {
-                console.error('Error fetching manager data:', error);
+                console.error('Error fetching product data:', error);
             }
         },
-        async openShowModal(managerId) {
+        async openShowModal(productId) {
             try {
-                const response = await fetch(`/managers/${managerId}`);
+                const response = await fetch(`/products/${productId}`);
                 const data = await response.json();
-                this.showManagerData = data;
+                this.showProductData = data;
                 this.showShowModal = true;
             } catch (error) {
-                console.error('Error fetching manager data:', error);
+                console.error('Error fetching product data:', error);
             }
         }
     }

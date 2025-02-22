@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Supplier extends Model
 {
     use HasUUID;
+    
     public $incrementing = false;
     protected $keyType = 'string';
 

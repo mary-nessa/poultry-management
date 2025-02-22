@@ -4,13 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\Branch;
 
 class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::with('sales')->get();
-        return view('products.index', compact('products'));
+        $products = Product::with('branch')->get();
+        $branches = Branch::all();
+        return view('products.index', compact('products', 'branches'));
     }
 
     public function create()
@@ -21,8 +23,11 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'product_type'  => 'required|string',
-            'default_price' => 'required|numeric',
+            'product_type' => 'required|string|unique:products',
+            'breed' => 'required|string',
+            'unit_measure' => 'required|string',
+            'default_price' => 'required|numeric|min:0',
+            'branch_id' => 'required|exists:branches,id'
         ]);
 
         Product::create($validated);
@@ -31,20 +36,23 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-        $product->load('sales');
-        return view('products.show', compact('product'));
+        $product->load('branch');
+        return response()->json($product);
     }
 
     public function edit(Product $product)
     {
-        return view('products.edit', compact('product'));
+        return response()->json($product);
     }
 
     public function update(Request $request, Product $product)
     {
         $validated = $request->validate([
-            'product_type'  => 'required|string',
-            'default_price' => 'required|numeric',
+            'product_type' => 'required|string|unique:products,product_type,'.$product->id,
+            'breed' => 'required|string',
+            'unit_measure' => 'required|string',
+            'default_price' => 'required|numeric|min:0',
+            'branch_id' => 'required|exists:branches,id'
         ]);
 
         $product->update($validated);
@@ -53,6 +61,11 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        // Check if the product has any associated sale items
+        if ($product->saleItems()->exists()) {
+            return back()->with('error', 'Cannot delete product with associated sales.');
+        }
+
         $product->delete();
         return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
     }

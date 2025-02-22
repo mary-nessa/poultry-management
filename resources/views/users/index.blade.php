@@ -45,15 +45,19 @@
                                 </button>
                             @endif
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $user->branch ? $user->branch->name : 'N/A' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{  $user->branch->name ?? 'N/A' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button @click="openShowModal('{{ $user->id }}')" class="text-blue-600 hover:text-blue-900 mr-3">View</button>
+                            
+                                <button @click="openShowModal('{{ $user->id }}')" class="text-blue-600 hover:text-blue-900 mr-3">View</button>
                             <button @click="openEditModal('{{ $user->id }}')" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
                             <form action="{{ route('users.destroy', $user) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this user?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
                             </form>
+
+                            
+                            
                         </td>
                     </tr>
                 @endforeach

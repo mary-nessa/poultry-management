@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Chick Purchases')
+@section('title', ' Bird Purchases')
 
 @section('content')
     <div class="container mx-auto px-4 py-6" x-data="chickPurchaseManagement()">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-900">Chick Purchases</h1>
+            <h1 class="text-3xl font-bold text-gray-900">Bird Purchases</h1>
             <button @click="openCreateModal()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                New Chick Purchase
+                New Bird Purchase
             </button>
         </div>
 
@@ -64,7 +64,7 @@
                     <form action="{{ route('chick-purchases.store') }}" method="POST">
                         @csrf
                         <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Create New Chick Purchase</h3>
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Create Bird  Purchase</h3>
                             <div class="mb-4">
 {{--                                if user is admin lets show all branches otherwise only show the branch of the user--}}
                                 <label for="branch_id" class="block text-gray-700 text-sm font-bold mb-2">Branch</label>

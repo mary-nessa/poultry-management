@@ -40,14 +40,14 @@ class TransferController extends Controller
         $user_id = $request->input('user_id', auth()->user()->id);
 
         // Breed is required only if the type is 'birds', otherwise set it to null for 'eggs'
-        $breed = ($request->type == 'birds' && !$request->breed) ? 
-                 back()->withErrors(['breed' => 'Breed is required when transferring birds.']) : 
-                 ($request->type == 'birds' ? $request->breed : null);
+        // $breed = ($request->type == 'birds' && !$request->breed) ? 
+        //          back()->withErrors(['breed' => 'Breed is required when transferring birds.']) : 
+        //          ($request->type == 'birds' ? $request->breed : null);
 
         // Store the transfer
         Transfer::create([
             'type'           => $validated['type'],
-            'breed'          => $breed, // Only set breed if it's birds
+            'breed'          => $validated['breed'],
             'from_branch_id' => $validated['from_branch_id'],
             'to_branch_id'   => $validated['to_branch_id'],
             'user_id'        => $user_id,

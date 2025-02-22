@@ -1,97 +1,58 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Models;
 
-use Illuminate\Http\Request;
-use App\Models\Expense;
-use App\Models\Branch;
-use App\Models\ChickPurchase; // Added ChickPurchase model
-use App\Models\Feed; // Added Feed model
-use App\Models\Medicine; // Added Medicine model
-use App\Models\Equipment; // Added Equipment model
+use App\Traits\HasUUID;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ExpenseController extends Controller
+class Expense extends Model
 {
-    public function index()
+    use HasUUID;
+
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    protected $fillable = [
+        'category',
+        'amount',
+        'description',
+        'expense_date',
+        'expense_type',
+        'chick_purchase_id',
+        'feed_id',
+        'medicine_id',
+        'equipment_id',
+        'branch_id'
+    ];
+
+    protected $casts = [
+        'expense_date' => 'datetime',
+        'amount' => 'float'
+    ];
+
+    public function branch(): BelongsTo
     {
-        // Load all related models (ChickPurchase, Feed, Medicine, Equipment, Branch) for efficient fetching
-        $expenses = Expense::with(['branch', 'chickPurchase', 'feed', 'medicine', 'equipment'])->get();
-        return view('expenses.index', compact('expenses'));
+        return $this->belongsTo(Branch::class);
     }
 
-    public function create()
+    public function chickPurchase(): BelongsTo
     {
-        // Get all branches, chick purchases, feeds, medicines, and equipment to populate select options in the form
-        $branches = Branch::all();
-        $chickPurchases = ChickPurchase::all();
-        $feeds = Feed::all();
-        $medicines = Medicine::all();
-        $equipments = Equipment::all();
-        return view('expenses.create', compact('branches', 'chickPurchases', 'feeds', 'medicines', 'equipments'));
+        return $this->belongsTo(ChickPurchase::class);
     }
 
-    public function store(Request $request)
+    public function feed(): BelongsTo
     {
-        // Validate incoming request data, ensuring that all fields are properly validated
-        $validated = $request->validate([
-            'category'      => 'required|string',
-            'amount'        => 'required|numeric',
-            'expense_date'  => 'required|date',
-            'expense_type'  => 'required|string',
-            'branch_id'     => 'required|exists:branches,id',
-            'chick_purchase_id' => 'nullable|exists:chick_purchases,id',  // Ensure chick purchase ID is optional
-            'feed_id'       => 'nullable|exists:feeds,id',
-            'medicine_id'   => 'nullable|exists:medicines,id',
-            'equipment_id'  => 'nullable|exists:equipment,id',
-        ]);
-
-        // Create new Expense record with validated data
-        Expense::create($validated);
-        return redirect()->route('expenses.index')->with('success', 'Expense created successfully.');
+        return $this->belongsTo(Feed::class);
     }
 
-    public function show(Expense $expense)
+    public function medicine(): BelongsTo
     {
-        // Eager load the related models to show full data
-        $expense->load(['branch', 'chickPurchase', 'feed', 'medicine', 'equipment']);
-        return view('expenses.show', compact('expense'));
+        return $this->belongsTo(Medicine::class);
     }
 
-    public function edit(Expense $expense)
+    public function equipment(): BelongsTo
     {
-        // Get all necessary related data for editing an expense
-        $branches = Branch::all();
-        $chickPurchases = ChickPurchase::all();
-        $feeds = Feed::all();
-        $medicines = Medicine::all();
-        $equipments = Equipment::all();
-        return view('expenses.edit', compact('expense', 'branches', 'chickPurchases', 'feeds', 'medicines', 'equipments'));
-    }
-
-    public function update(Request $request, Expense $expense)
-    {
-        // Validate incoming request data for updating an expense
-        $validated = $request->validate([
-            'category'      => 'required|string',
-            'amount'        => 'required|numeric',
-            'expense_date'  => 'required|date',
-            'expense_type'  => 'required|string',
-            'branch_id'     => 'required|exists:branches,id',
-            'chick_purchase_id' => 'nullable|exists:chick_purchases,id',
-            'feed_id'       => 'nullable|exists:feeds,id',
-            'medicine_id'   => 'nullable|exists:medicines,id',
-            'equipment_id'  => 'nullable|exists:equipment,id',
-        ]);
-
-        // Update the expense with the validated data
-        $expense->update($validated);
-        return redirect()->route('expenses.index')->with('success', 'Expense updated successfully.');
-    }
-
-    public function destroy(Expense $expense)
-    {
-        // Delete the expense and redirect with a success message
-        $expense->delete();
-        return redirect()->route('expenses.index')->with('success', 'Expense deleted successfully.');
+        return $this->belongsTo(Equipment::class);
     }
 }

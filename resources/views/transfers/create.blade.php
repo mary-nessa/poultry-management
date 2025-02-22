@@ -20,7 +20,7 @@
                 @error('type') <div class="text-red-500">{{ $message }}</div> @enderror
             </div>
 
-            <div class="mb-4" id="breed-container" style="display:none;">
+            <div class="mb-4" id="breed-container" >
                 <label for="breed" class="block text-sm font-medium text-gray-700">Breed</label>
                 <input type="text" id="breed" name="breed" class="mt-1 block w-full border-gray-300 rounded-md" placeholder="Enter breed" value="{{ old('breed') }}">
                 @error('breed') <div class="text-red-500">{{ $message }}</div> @enderror
@@ -79,7 +79,7 @@
         </form>
     </div>
 
-    <script>
+    {{-- <script>
         document.getElementById('type').addEventListener('change', function () {
             var breedContainer = document.getElementById('breed-container');
             if (this.value === 'birds') {
@@ -91,5 +91,5 @@
 
         // Trigger the event to show/hide breed field based on initial type value
         document.getElementById('type').dispatchEvent(new Event('change'));
-    </script>
+    </script> --}}
 @endsection

@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Birds')
+@section('title', 'Birds Groups')
 
 @section('content')
     <div class="container mx-auto px-4 py-6" x-data="birdManagement()">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-900">Birds</h1>
             <button @click="openCreateModal()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Add New Bird
+                Group Bird
             </button>
         </div>
 
@@ -65,14 +65,14 @@
                     <form action="{{ route('birds.store') }}" method="POST">
                         @csrf
                         <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Add New Bird</h3>
+                            <h3 class="text-lg font-medium text-gray-900 mb-4"> Group Bird </h3>
                             <!-- Select a Chick Purchase -->
                             <div class="mb-4">
-                                <label for="chick_purchase_id" class="block text-gray-700 text-sm font-bold mb-2">Chick Purchase</label>
+                                <label for="chick_purchase_id" class="block text-gray-700 text-sm font-bold mb-2">Bird Group</label>
                                 <select name="chick_purchase_id" id="chick_purchase_id" required
                                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                                         @change="updateBranch($event)">
-                                    <option value="">Select Chick Purchase</option>
+                                    <option value="">Select Group</option>
                                     @foreach($chickPurchases as $purchase)
                                         <option value="{{ $purchase->id }}">
                                             {{ $purchase->breed ?? ('Purchase ' . $purchase->id) }} - {{ $purchase->date }}

@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\HasUUID;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Sale extends Model
 {
+
+    use HasUUID;
+
     public $incrementing = false;
     protected $keyType = 'string';
 
