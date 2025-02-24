@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Feed Details') <!-- Added page title -->
+@section('title', 'Feed Details')
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
@@ -10,7 +10,7 @@
 
             <div class="mb-4">
                 <label class="block text-gray-600 font-semibold">Feed Type:</label>
-                <p class="text-gray-800">{{ $feed->type }}</p>
+                <p class="text-gray-800">{{ $feed->feedType->name ?? 'N/A' }}</p>
             </div>
 
             <div class="grid grid-cols-2 gap-4 mb-4">
@@ -26,7 +26,7 @@
 
             <div class="mb-4">
                 <label class="block text-gray-600 font-semibold">Total Cost (UGX):</label>
-                <p class="text-gray-800 font-bold">UGX {{ number_format($feed->total_cost, 0) }}</p>
+                <p class="text-gray-800 font-bold">UGX {{ number_format($feed->quantity_kg * $feed->unit_cost, 0) }}</p>
             </div>
 
             <div class="grid grid-cols-2 gap-4 mb-4">

@@ -11,9 +11,15 @@
         @method('PUT')
 
         <div class="mb-4">
-            <label for="type" class="block text-sm font-medium text-gray-700">Feed Type</label>
-            <input type="text" name="type" id="type" class="mt-1 block w-full border-gray-300 rounded-md" 
-                   value="{{ old('type', $feed->type) }}" required>
+            <label for="feed_type_id" class="block text-sm font-medium text-gray-700">Feed Type</label>
+            <select name="feed_type_id" id="feed_type_id" class="mt-1 block w-full border-gray-300 rounded-md" required>
+                <option value="">Select Feed Type</option>
+                @foreach($feedTypes as $type)
+                    <option value="{{ $type->id }}" {{ old('feed_type_id', $feed->feed_type_id) == $type->id ? 'selected' : '' }}>
+                        {{ $type->name }}
+                    </option>
+                @endforeach
+            </select>
         </div>
 
         <div class="mb-4">
@@ -29,10 +35,11 @@
         </div>
 
         <div class="mb-4">
+            <label for="purchase_date" class="block text-sm font-medium text-gray-700">Purchase Date</label>
             <input type="date" name="purchase_date" id="purchase_date" 
-       class="mt-1 block w-full border-gray-300 rounded-md" 
-       value="{{ old('purchase_date', $feed->purchase_date ? date('Y-m-d', strtotime($feed->purchase_date)) : '') }}"
-       required max="{{ date('Y-m-d') }}">
+                   class="mt-1 block w-full border-gray-300 rounded-md" 
+                   value="{{ old('purchase_date', $feed->purchase_date ? date('Y-m-d', strtotime($feed->purchase_date)) : '') }}"
+                   required max="{{ date('Y-m-d') }}">
         </div>
 
         <div class="mb-4">

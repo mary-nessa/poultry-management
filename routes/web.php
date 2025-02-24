@@ -20,6 +20,7 @@ use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\FeedTypeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
@@ -65,5 +66,6 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('expense-limits', ExpenseLimitController::class);
     Route::resource('alerts', AlertController::class);
     Route::resource('medicine', MedicineController::class);
+    Route::resource('feedtypes', FeedTypeController::class);
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });

@@ -15,18 +15,18 @@
 
     <form action="{{ route('feeds.store') }}" method="POST">         
         @csrf          
-        <div class="mb-4">             
-            <label for="type" class="block text-sm font-medium text-gray-700">Feed Type</label>             
-            <input type="text" 
-                   name="type" 
-                   id="type" 
-                   class="mt-1 block w-full border-gray-300 rounded-md" 
-                   value="{{ old('type') }}" 
-                   pattern="[A-Za-z\s]+" 
-                   title="Please enter only letters and spaces"
-                   required>         
-        </div>          
-        
+       <div class="mb-4">
+    <label for="feed_type_id" class="block text-gray-700 text-sm font-bold mb-2">Feed Type</label>
+    <select name="feed_type_id" id="feed_type_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        <option value="">Select Feed Type</option>
+        @foreach($feedTypes as $type)
+            <option value="{{ $type->id }}" {{ old('feed_type_id', $feed->feed_type_id ?? '') == $type->id ? 'selected' : '' }}>
+                {{ $type->name }}
+            </option>
+        @endforeach
+    </select>
+</div>
+
         <div class="mb-4">             
             <label for="quantity_kg" class="block text-sm font-medium text-gray-700">Quantity (kg)</label>             
             <input type="number" 
@@ -66,13 +66,14 @@
             <label for="supplier_id" class="block text-sm font-medium text-gray-700">Supplier (Optional)</label>             
             <select name="supplier_id" id="supplier_id" class="mt-1 block w-full border-gray-300 rounded-md">                 
                 <option value="">No Supplier</option>                 
-                @foreach($suppliers as $supplier)                     
-                    <option value="{{ $supplier->id }}" {{ old('supplier_id') == $supplier->id ? 'selected' : '' }}>                         
-                        {{ $supplier->name }}                     
-                    </option>                 
-                @endforeach             
-            </select>         
-        </div>          
+                @foreach($suppliers as $supplier)
+                    <option value="{{ $supplier->id }}" {{ old('supplier_id') == $supplier->id ? 'selected' : '' }}>
+                        {{ $supplier->name }}
+                    </option>
+                @endforeach
+            </select>           
+        </div>
+                 
         
         <div class="mb-4">             
             <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Save Feed</button>         

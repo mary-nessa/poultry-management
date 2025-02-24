@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use App\Traits\HasUUID;
@@ -14,7 +13,7 @@ class Feed extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'type', 'quantity_kg', 'purchase_date', 'unit_cost','total_cost', 'supplier_id',
+        'feed_type_id', 'quantity_kg', 'purchase_date', 'unit_cost', 'total_cost', 'supplier_id',
     ];
 
     public function supplier(): BelongsTo
@@ -25,5 +24,10 @@ class Feed extends Model
     public function expenses(): HasMany
     {
         return $this->hasMany(Expense::class);
+    }
+
+    public function feedType()
+    {
+        return $this->belongsTo(FeedType::class, 'feed_type_id'); // Specify the foreign key if it's not 'feed_type_id'
     }
 }

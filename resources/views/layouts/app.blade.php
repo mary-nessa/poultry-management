@@ -94,6 +94,7 @@
                         <i class="fas fa-chevron-right transform transition-transform duration-200" :class="{'rotate-90': openInventoryManagement}"></i>
                     </button>
                     <div x-show="openInventoryManagement" class="pl-12 space-y-1">
+                        <a href="{{ route('feedtypes.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Feed Types</a>
                         <a href="{{ route('feeds.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Feeds</a>
                         <a href="{{ route('equipments.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Equipment</a>
                         <a href="{{ route('medicine.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Medicines</a>

@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('feeds', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('type');
             $table->float('quantity_kg');
             $table->timestamp('purchase_date');
             $table->float('unit_cost');
