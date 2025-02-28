@@ -16,6 +16,7 @@ class ChickPurchase extends Model
         'batch_id',
         'breed',
         'purchase_age',
+        'purchase_date' => 'date',
         'branch_id',
         'quantity',
         'unit_cost',

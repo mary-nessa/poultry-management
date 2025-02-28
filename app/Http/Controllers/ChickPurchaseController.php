@@ -12,14 +12,47 @@ class ChickPurchaseController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $chickPurchases = ChickPurchase::with(['branch', 'supplier'])->get();
-        $branches = Branch::all();
-        $suppliers = Supplier::all();
-        return view('chick-purchase.index', compact('chickPurchases', 'branches', 'suppliers'));
+    public function index(Request $request)
+{
+    // Validate the date range if both dates are provided
+    if ($request->has('date_from') && $request->has('date_to')) {
+        $dateFrom = $request->date_from;
+        $dateTo = $request->date_to;
+        
+        if (!empty($dateFrom) && !empty($dateTo) && strtotime($dateFrom) > strtotime($dateTo)) {
+            return redirect()->back()->with('error', 'Date From cannot be later than Date To');
+        }
     }
-
+    
+    // Start building the query
+    $query = ChickPurchase::with('branch');
+    
+    // Apply filters
+    if ($request->has('branch') && !empty($request->branch)) {
+        $query->where('branch_id', $request->branch);
+    }
+    
+    if ($request->has('breed') && !empty($request->breed)) {
+        $query->where('breed', 'like', '%' . $request->breed . '%');
+    }
+    
+    if ($request->has('date_from') && !empty($request->date_from)) {
+        $query->whereDate('purchase_date', '>=', $request->date_from);
+    }
+    
+    if ($request->has('date_to') && !empty($request->date_to)) {
+        $query->whereDate('purchase_date', '<=', $request->date_to);
+    }
+    
+    // Get the results with pagination (5 items per page)
+    $chickPurchases = $query->orderBy('purchase_date', 'desc')->paginate(5);
+    
+    // Get data for dropdowns
+    $branches = Branch::all();
+    $suppliers = Supplier::all();
+    
+    return view('chick-purchase.index', compact('chickPurchases', 'branches', 'suppliers'));
+}
     /**
      * Store a newly created resource in storage.
      */
@@ -31,6 +64,7 @@ class ChickPurchaseController extends Controller
                 'supplier_id'   => 'nullable|exists:suppliers,id',
                 'breed'         => 'required|string|max:255',
                 'purchase_age'  => 'required|integer|min:0',
+                'purchase_date' => ['required', 'date', 'before_or_equal:' . now()->format('Y-m-d')],
                 'quantity'      => 'required|integer|min:1',
                 'unit_cost'     => 'required|numeric|min:0',
             ]);
@@ -65,32 +99,33 @@ class ChickPurchaseController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(ChickPurchase $chickPurchase)
-    {
-        if (request()->ajax()) {
-            return response()->json($chickPurchase->load(['branch', 'supplier']));
-        }
-        return view('chick-purchase.edit', compact('chickPurchase'));
-    }
-
+{
+    $branches = Branch::all(); // Assuming you're already passing this
+    $suppliers = Supplier::all(); // Add this line to fetch suppliers
+    
+    return view('chick-purchase.edit', compact('chickPurchase', 'branches', 'suppliers'));
+}
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, ChickPurchase $chickPurchase)
-    {
-        $validated = $request->validate([
-            'branch_id'     => 'required|exists:branches,id',
-            'supplier_id'   => 'nullable|exists:suppliers,id',
-            'breed'         => 'required|string|max:255',
-            'purchase_age'  => 'required|integer|min:0',
-            'quantity'      => 'required|integer|min:1',
-            'unit_cost'     => 'required|numeric|min:0',
-            'total_cost'    => 'required|numeric|min:0',
-            'date'          => 'required|date',
-        ]);
+{
+    $validated = $request->validate([
+        'branch_id' => 'required|exists:branches,id',
+        'supplier_id' => 'nullable|exists:suppliers,id',
+        'breed' => 'required|string|max:255',
+        'purchase_age' => 'required|integer|min:0',
+        'purchase_date' => 'required|date|before_or_equal:today',
+        'quantity' => 'required|integer|min:1',
+        'unit_cost' => 'required|numeric|min:0',
+        'total_cost' => 'required|numeric|min:0',
+    ]);
 
-        $chickPurchase->update($validated);
-        return redirect()->route('chick-purchase.index')->with('success', 'Chick purchase updated successfully.');
-    }
+    $chickPurchase->update($validated);
+    
+    return redirect()->route('chick-purchases.index')
+        ->with('success', 'Bird purchase updated successfully');
+}
 
     /**
      * Remove the specified resource from storage.
@@ -104,6 +139,6 @@ class ChickPurchaseController extends Controller
         }
 
         $chickPurchase->delete();
-        return redirect()->route('chick-purchase.index')->with('success', 'Chick purchase deleted successfully.');
+        return redirect()->route('chick-purchases.index')->with('success', 'Chick purchase deleted successfully.');
     }
 }

@@ -17,42 +17,57 @@
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <span class="block sm:inline">{{ session('error') }}</span>
+            </div>
+        @endif
+
         <!-- Birds Table -->
         <div class="bg-white shadow-md rounded-lg overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Batch Id</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Birds</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hens</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cocks</th>
-{{--                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branch</th>--}}
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                @foreach($birds as $bird)
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            {{ $bird->chickPurchase ? $bird->chickPurchase->batch_id : 'N/A' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $bird->total_birds }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $bird->hen_count }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $bird->cock_count }}</td>
-{{--                        <td class="px-6 py-4 whitespace-nowrap">{{ $bird->branch->name }}</td>--}}
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button @click="openShowModal('{{ $bird->id }}')" class="text-blue-600 hover:text-blue-900 mr-3">View</button>
-                            <button @click="openEditModal('{{ $bird->id }}')" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
-                            <form action="{{ route('birds.destroy', $bird) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this bird record?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
-                            </form>
-                        </td>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Batch Id</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Birds</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hens</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cocks</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
-                @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    @foreach($birds as $index => $bird)
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $birds->firstItem() + $index }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {{ $bird->chickPurchase ? $bird->chickPurchase->batch_id : 'N/A' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $bird->total_birds }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $bird->hen_count }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $bird->cock_count }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex flex-wrap gap-2">
+                                    <a href="{{ route('birds.show', $bird->id) }}" class="text-blue-600 hover:text-blue-900">View</a>
+                                    <a href="{{ route('birds.edit', $bird->id) }}" class="text-blue-600 hover:text-blue-900">Edit</a>
+                                    <form action="{{ route('birds.destroy', $bird) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this bird record?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="px-6 py-4 bg-white border-t border-gray-200">
+                {{ $birds->links() }}
+            </div>
         </div>
 
         <!-- Create Bird Modal -->
@@ -71,33 +86,42 @@
                                 <label for="chick_purchase_id" class="block text-gray-700 text-sm font-bold mb-2">Bird Group</label>
                                 <select name="chick_purchase_id" id="chick_purchase_id" required
                                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                        @change="updateBranch($event)">
+                                        @change="updateAvailableBirds($event.target.value)">
                                     <option value="">Select Group</option>
                                     @foreach($chickPurchases as $purchase)
                                         <option value="{{ $purchase->id }}">
-                                            {{ $purchase->breed ?? ('Purchase ' . $purchase->id) }} - {{ $purchase->date }}
+                                            {{ $purchase->breed ?? ('Purchase ' . $purchase->id) }} - Batch: {{ $purchase->batch_id }}
                                         </option>
                                     @endforeach
                                 </select>
                             </div>
+                            
+                            <div x-show="availableBirds !== null" class="mb-4 p-3 bg-blue-50 rounded">
+                                <p class="text-sm text-blue-800">
+                                    <span class="font-bold">Available birds:</span> <span x-text="availableBirds"></span>
+                                </p>
+                            </div>
+                            
                             <!-- Hen Count -->
                             <div class="mb-4">
                                 <label for="hen_count" class="block text-gray-700 text-sm font-bold mb-2">Number of Hens</label>
                                 <input type="number" name="hen_count" id="hen_count" min="0" required
-                                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                       @input="validateBirdCount">
                             </div>
                             <!-- Cock Count -->
                             <div class="mb-4">
                                 <label for="cock_count" class="block text-gray-700 text-sm font-bold mb-2">Number of Cocks</label>
                                 <input type="number" name="cock_count" id="cock_count" min="0" required
-                                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                       @input="validateBirdCount">
                             </div>
-
-
+                            
+                            <div x-show="validationError" class="mt-2 text-sm text-red-600" x-text="validationError"></div>
                         </div>
                         <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <button type="submit"
-                                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                            <button type="submit" x-bind:disabled="validationError !== null"
+                                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
                                 Create
                             </button>
                             <button type="button" @click="showCreateModal = false"
@@ -109,10 +133,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- (Edit and Show modals remain unchanged.) -->
-    </div>
-
     @push('scripts')
         <script>
             function birdManagement() {
@@ -121,7 +141,10 @@
                     showEditModal: false,
                     showShowModal: false,
                     editBirdId: null,
+                    availableBirds: null,
+                    validationError: null,
                     editBirdData: {
+                        id: null,
                         chick_purchase_id: '',
                         total_birds: 0,
                         hen_count: 0,
@@ -131,6 +154,7 @@
                         laying_cycle_end_date: ''
                     },
                     showBirdData: {
+                        id: null,
                         chickPurchase: null,
                         total_birds: 0,
                         hen_count: 0,
@@ -139,24 +163,102 @@
                         laying_cycle_start_date: '',
                         laying_cycle_end_date: ''
                     },
+                    editValidationError: null,
+                    editAvailableBirds: null,
+                    originalEditBird: {
+                        chick_purchase_id: '',
+                        total_birds: 0
+                    },
 
                     openCreateModal() {
                         this.showCreateModal = true;
+                        this.availableBirds = null;
+                        this.validationError = null;
                     },
+                    
+                    async updateAvailableBirds(purchaseId) {
+                        if (!purchaseId) {
+                            this.availableBirds = null;
+                            return;
+                        }
+                        
+                        try {
+                            const response = await fetch(`/birds/available/${purchaseId}`);
+                            const data = await response.json();
+                            this.availableBirds = data.available;
+                            this.validateBirdCount();
+                        } catch (error) {
+                            console.error('Error fetching available birds:', error);
+                        }
+                    },
+                    
+                    validateBirdCount() {
+                        const henCount = parseInt(document.getElementById('hen_count').value) || 0;
+                        const cockCount = parseInt(document.getElementById('cock_count').value) || 0;
+                        const total = henCount + cockCount;
+                        
+                        this.validationError = null;
+                        
+                        if (this.availableBirds !== null && total > this.availableBirds) {
+                            this.validationError = `Total birds (${total}) exceeds available birds (${this.availableBirds})`;
+                        }
+                    },
+                    
                     async openEditModal(birdId) {
                         this.editBirdId = birdId;
                         try {
-                            const response = await fetch(`/birds/${birdId}/edit`);
+                            const response = await fetch(`/birds/${birdId}/edit-data`);
                             const data = await response.json();
                             this.editBirdData = data;
+                            this.originalEditBird = {
+                                chick_purchase_id: data.chick_purchase_id,
+                                total_birds: data.total_birds
+                            };
                             this.showEditModal = true;
+                            this.updateEditAvailableBirds(data.chick_purchase_id);
                         } catch (error) {
                             console.error('Error fetching bird data:', error);
                         }
                     },
+                    
+                    async updateEditAvailableBirds(purchaseId) {
+                        if (!purchaseId) {
+                            this.editAvailableBirds = null;
+                            return;
+                        }
+                        
+                        try {
+                            const response = await fetch(`/birds/available/${purchaseId}`);
+                            const data = await response.json();
+                            
+                            // If same purchase as original, add back the original count
+                            if (purchaseId == this.originalEditBird.chick_purchase_id) {
+                                this.editAvailableBirds = data.available + this.originalEditBird.total_birds;
+                            } else {
+                                this.editAvailableBirds = data.available;
+                            }
+                            
+                            this.validateEditBirdCount();
+                        } catch (error) {
+                            console.error('Error fetching available birds:', error);
+                        }
+                    },
+                    
+                    validateEditBirdCount() {
+                        const henCount = parseInt(document.getElementById('edit_hen_count').value) || 0;
+                        const cockCount = parseInt(document.getElementById('edit_cock_count').value) || 0;
+                        const total = henCount + cockCount;
+                        
+                        this.editValidationError = null;
+                        
+                        if (this.editAvailableBirds !== null && total > this.editAvailableBirds) {
+                            this.editValidationError = `Total birds (${total}) exceeds available birds (${this.editAvailableBirds})`;
+                        }
+                    },
+                    
                     async openShowModal(birdId) {
                         try {
-                            const response = await fetch(`/birds/${birdId}`);
+                            const response = await fetch(`/birds/${birdId}/data`);
                             const data = await response.json();
                             this.showBirdData = data;
                             this.showShowModal = true;

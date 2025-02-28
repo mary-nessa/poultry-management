@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreign('supplier_id')->references('id')->on('suppliers')->onDelete('set null');
             $table->string('batch_id');
             $table->integer('purchase_age');
+            $table->timestamp('purchase_date');
             $table->string('breed');
             $table->integer('quantity');
             $table->float('unit_cost');

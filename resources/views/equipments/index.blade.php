@@ -13,14 +13,11 @@
     <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-sm">
         <thead>
             <tr>
-                <th class="py-2 px-4 border-b">Equipment Name</th>
-                <th class="py-2 px-4 border-b">Quantity</th>
-                <th class="py-2 px-4 border-b">Unit Cost</th>
-                <th class="py-2 px-4 border-b">Total Cost</th>
-                <th class="py-2 px-4 border-b">Purchase Date</th>
-                <th class="py-2 px-4 border-b">Status</th>
-                <th class="py-2 px-4 border-b">Supplier</th>
-                <th class="py-2 px-4 border-b">Actions</th>
+                <th class="py-2 px-4 border-b text-left">Equipment Name</th>
+                <th class="py-2 px-4 border-b text-left">Quantity</th>
+                <th class="py-2 px-4 border-b text-left">Price</th>
+                <th class="py-2 px-4 border-b text-left">Status</th>
+                <th class="py-2 px-4 border-b text-left">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -29,12 +26,15 @@
                 <td class="py-2 px-4 border-b">{{ $item->name }}</td>
                 <td class="py-2 px-4 border-b">{{ $item->quantity }}</td>
                 <td class="py-2 px-4 border-b">{{ number_format($item->unit_cost, 2) }}</td>
-                <td class="py-2 px-4 border-b">{{ number_format($item->total_cost, 2) }}</td>
-                <td class="py-2 px-4 border-b">{{ \Carbon\Carbon::parse($item->purchase_date)->format('d M, Y') }}</td>
                 <td class="py-2 px-4 border-b">{{ $item->status }}</td>
-                <td class="py-2 px-4 border-b">{{ $item->supplier ? $item->supplier->name : 'No Supplier' }}</td>
                 <td class="py-2 px-4 border-b">
-                    <a href="{{ route('equipments.edit', $item->id) }}" class="bg-yellow-500 text-white py-1 px-3 rounded-md hover:bg-yellow-600">Edit</a>
+                    <!-- Show Button -->
+                    <a href="{{ route('equipments.show', $item->id) }}" class="inline-block bg-blue-500 text-white py-1 px-3 rounded-md hover:bg-blue-600">Show</a>
+
+                    <!-- Edit Button -->
+                    <a href="{{ route('equipments.edit', $item->id) }}" class="inline-block bg-yellow-500 text-white py-1 px-3 rounded-md hover:bg-yellow-600 ml-2">Edit</a>
+                    
+                    <!-- Delete Button -->
                     <form action="{{ route('equipments.destroy', $item->id) }}" method="POST" class="inline-block ml-2" onsubmit="return confirmDelete()">
                         @csrf
                         @method('DELETE')
@@ -46,10 +46,12 @@
         </tbody>
     </table>
 </div>
+
 <script>
     // JavaScript function to confirm before delete
     function confirmDelete() {
-        return confirm("Are you sure you want to delete this feed?");
+        return confirm("Are you sure you want to delete this equipment?");
     }
 </script>
+
 @endsection

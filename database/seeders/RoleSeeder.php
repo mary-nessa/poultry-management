@@ -14,24 +14,42 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        // Define roles
-        $admin = Role::create(['name' => 'admin']);
-        $manager = Role::create(['name' => 'manager']);
-        $salesManager = Role::create(['name' => 'sales_manager']);
-        $worker = Role::create(['name' => 'worker']);
+        // Clear cached permissions
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        //Define your permissions
+        $permissions = [
+            'manage role',
+            'manage user',
+            'manage branch',
+            'manage transfer',
+            'manage expense',
+            'manage feed',
+            'manage medicine',
+            'manage equipment',
+            'manage product',
+            'manage sale',
+            'manage egg-collection',
+            'manage chick-purchase',
+            'manage bird-immunization',
+            'manage feeding-log',
+            'manage health-check',
+            'manage supplier',
+            'manage feed-type',
+            'manage bird',
+            'manage buyer',
+            'manage alert',
+        ];
 
-        // Define permissions
-        Permission::create(['name' => 'manage users']);
-        Permission::create(['name' => 'manage inventory']);
-        Permission::create(['name' => 'manage expenses']);
-        Permission::create(['name' => 'manage sales']);
-        Permission::create(['name' => 'view reports']);
+        // Create permissions
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission]);
+        }
+        
 
-        // Assign permissions to roles
-        $admin->givePermissionTo(Permission::all());
-        $manager->givePermissionTo(['manage inventory', 'manage expenses', 'manage sales']);
-        $salesManager->givePermissionTo(['manage sales']);
-        $worker->givePermissionTo(['manage inventory']);
+        /// Create the admin role and assign all permissions
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $adminRole->syncPermissions($permissions);
+        
 
     }
 }

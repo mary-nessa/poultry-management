@@ -1,19 +1,22 @@
 @extends('layouts.app')
+@section('title', 'Feed Types')
 
 @section('content')
 <div class="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <!-- Header & Add New Button -->
     <div class="mb-6 sm:flex sm:items-center sm:justify-between">
         <h1 class="text-2xl font-bold text-gray-900">Feed Types</h1>
         <div class="mt-3 sm:mt-0">
-            <a href="{{ route('feedtypes.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+            <button type="button" onclick="document.getElementById('createModal').classList.remove('hidden')" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
                 <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
                 </svg>
                 Add New Feed Type
-            </a>
+            </button>
         </div>
     </div>
 
+    <!-- Success Alert -->
     @if (session('success'))
         <div class="rounded-md bg-green-50 p-4 mb-6" x-data="{ show: true }" x-show="show">
             <div class="flex">
@@ -39,6 +42,7 @@
         </div>
     @endif
 
+    <!-- Error Alert -->
     @if (session('error'))
         <div class="rounded-md bg-red-50 p-4 mb-6" x-data="{ show: true }" x-show="show">
             <div class="flex">
@@ -63,6 +67,24 @@
             </div>
         </div>
     @endif
+    
+    <!-- Search Form -->
+    <div class="mb-6">
+        <form method="GET" action="{{ route('feedtypes.index') }}">
+            <div class="flex">
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Search feed types..."
+                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                >
+                <button type="submit" class="ml-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Search
+                </button>
+            </div>
+        </form>
+    </div>
 
     <!-- Feed Types Table -->
     <div class="bg-white overflow-hidden shadow rounded-lg">
@@ -70,25 +92,25 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
                         <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse ($feedTypes as $feedType)
+                    @forelse ($feedTypes as $index => $feedType)
                     <tr class="hover:bg-gray-50 transition duration-150">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $feedType->id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $feedTypes->firstItem() + $index }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $feedType->name }}</td>
                         <td class="px-6 py-4 text-sm text-gray-500">{{ $feedType->description ?? 'No description' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex justify-end space-x-2">
-                                <a href="{{ route('feedtypes.edit', $feedType->id) }}" class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 p-2 rounded-md transition duration-150 ease-in-out">
+                                <button type="button" onclick="openEditModal({{ $feedType->id }}, '{{ $feedType->name }}', '{{ $feedType->description }}')" class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 p-2 rounded-md transition duration-150 ease-in-out">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                     </svg>
-                                </a>
+                                </button>
                                 <form action="{{ route('feedtypes.destroy', $feedType->id) }}" method="POST" class="inline">
                                     @csrf
                                     @method('DELETE')
@@ -109,9 +131,9 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                 </svg>
                                 <p class="mb-3">No feed types found</p>
-                                <a href="{{ route('feedtypes.create') }}" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <button type="button" onclick="document.getElementById('createModal').classList.remove('hidden')" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                     Add Feed Type
-                                </a>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -120,5 +142,127 @@
             </table>
         </div>
     </div>
+
+    <!-- Pagination Links -->
+    <div class="mt-6">
+        {{ $feedTypes->appends(request()->query())->links() }}
+    </div>
+
+    <!-- Create Modal -->
+    <div id="createModal" class="fixed inset-0 z-10 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Background overlay -->
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="document.getElementById('createModal').classList.add('hidden')"></div>
+
+            <!-- Modal panel -->
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                Create New Feed Type
+                            </h3>
+                            <div class="mt-2">
+                                <form id="createForm" method="POST" action="{{ route('feedtypes.store') }}">
+                                    @csrf
+                                    <div class="space-y-6">
+                                        <div>
+                                            <label for="create_name" class="block text-sm font-medium text-gray-700">Name <span class="text-red-500">*</span></label>
+                                            <div class="mt-1">
+                                                <input type="text" name="name" id="create_name" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Enter feed type name" required>
+                                            </div>
+                                            <p class="mt-2 text-sm text-gray-500">Only letters and spaces are allowed.</p>
+                                        </div>
+
+                                        <div>
+                                            <label for="create_description" class="block text-sm font-medium text-gray-700">Description</label>
+                                            <div class="mt-1">
+                                                <textarea id="create_description" name="description" rows="4" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Enter description (optional)"></textarea>
+                                            </div>
+                                            <p class="mt-2 text-sm text-gray-500">Only letters and spaces are allowed.</p>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" onclick="document.getElementById('createForm').submit()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Save Feed Type
+                    </button>
+                    <button type="button" onclick="document.getElementById('createModal').classList.add('hidden')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="fixed inset-0 z-10 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Background overlay -->
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="document.getElementById('editModal').classList.add('hidden')"></div>
+
+            <!-- Modal panel -->
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                Edit Feed Type
+                            </h3>
+                            <div class="mt-2">
+                                <form id="editForm" method="POST" action="">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="space-y-6">
+                                        <div>
+                                            <label for="edit_name" class="block text-sm font-medium text-gray-700">Name <span class="text-red-500">*</span></label>
+                                            <div class="mt-1">
+                                                <input type="text" name="name" id="edit_name" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Enter feed type name" required>
+                                            </div>
+                                            <p class="mt-2 text-sm text-gray-500">Only letters and spaces are allowed.</p>
+                                        </div>
+
+                                        <div>
+                                            <label for="edit_description" class="block text-sm font-medium text-gray-700">Description</label>
+                                            <div class="mt-1">
+                                                <textarea id="edit_description" name="description" rows="4" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Enter description (optional)"></textarea>
+                                            </div>
+                                            <p class="mt-2 text-sm text-gray-500">Only letters and spaces are allowed.</p>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" onclick="document.getElementById('editForm').submit()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Update Feed Type
+                    </button>
+                    <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openEditModal(id, name, description) {
+            // Set the form action URL
+            document.getElementById('editForm').action = `/feedtypes/${id}`;
+            
+            // Fill in the form fields
+            document.getElementById('edit_name').value = name;
+            document.getElementById('edit_description').value = description;
+            
+            // Show the modal
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+    </script>
 </div>
 @endsection

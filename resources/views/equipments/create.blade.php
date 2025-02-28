@@ -5,13 +5,13 @@
     <h1 class="text-2xl font-semibold mb-4">Add New Equipment</h1>
 
     <!-- Equipment Form -->
-    <form action="{{ route('equipments.store') }}" method="POST" class="bg-white p-6 rounded-lg shadow-sm">
+    <form action="{{ route('equipments.store') }}" method="POST" class="bg-white p-6 rounded-lg shadow-sm" onsubmit="return validateEquipmentName()">
         @csrf
 
         <!-- Equipment Name -->
         <div class="mb-4">
             <label for="name" class="block text-sm font-medium text-gray-700">Equipment Name</label>
-            <input type="text" id="name" name="name" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md" value="{{ old('name') }}" required>
+            <input type="text" id="name" name="name" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md" value="{{ old('name') }}" required pattern="[A-Za-z\s]+" title="Only letters and spaces are allowed">
             @error('name')
                 <div class="text-red-500 text-sm">{{ $message }}</div>
             @enderror
@@ -74,12 +74,27 @@
         <div class="mt-6">
             <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">Add Equipment</button>
         </div>
-        <!-- Close Button -->
-     <div class="mt-4">
-        <button onclick="window.history.back()" class="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600">Close</button>
-    </div>
-    </form>
 
-     
+        <!-- Close Button -->
+        <div class="mt-4">
+            <button onclick="window.history.back()" class="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600">Close</button>
+        </div>
+    </form>
 </div>
+
+<script>
+    // Client-side validation for duplicate entry check
+    function validateEquipmentName() {
+        const name = document.getElementById('name').value;
+        const errorMessage = document.getElementById('name-error');
+        
+        // Prevent form submission if the name contains numbers
+        if (/\d/.test(name)) {
+            alert("Equipment name cannot contain numbers.");
+            return false;
+        }
+
+        return true;
+    }
+</script>
 @endsection

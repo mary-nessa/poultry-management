@@ -24,6 +24,7 @@ class TransferController extends Controller
 
     public function store(Request $request)
     {
+        
         // Add custom validation to check that from_branch_id and to_branch_id are different
         $validated = $request->validate([
             'type'           => 'required|string',
