@@ -6,6 +6,7 @@ use App\Http\Controllers\BirdController;
 use App\Http\Controllers\BirdImmunizationController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\BuyerController;
+use App\Http\Controllers\BreedController;
 use App\Http\Controllers\ChickPurchaseController;
 use App\Http\Controllers\TransferController;
 use App\Http\Controllers\EggCollectionController;
@@ -109,6 +110,10 @@ Route::middleware(['auth', 'permission:manage alert'])->group(function () {
     Route::resource('alerts', AlertController::class);
 });
 
+Route::middleware(['auth', 'permission:manage breed'])->group(function () {
+    Route::resource('breeds', BreedController::class);
+});
+
 Route::middleware(['auth', 'permission:manage feed-type'])->group(function () {
     Route::resource('feedtypes', FeedTypeController::class);
 });
@@ -139,9 +144,12 @@ Route::middleware(['auth', 'permission:manage equipment'])->group(function () {
     Route::resource('equipments', EquipmentController::class);
 });
 
+
+
 Route::middleware(['auth', 'permission:manage product'])->group(function () {
     Route::resource('products', ProductController::class);
 });
+
 
 
 Route::middleware(['auth', 'permission:manage role'])->group(function () {

@@ -46,17 +46,15 @@ class SupplierController extends Controller
     }
 
     public function update(Request $request, Supplier $supplier)
-    {
-        $validated = $request->validate([
-            'name'         => 'required|string|max:255',
-            'contact_info' => 'required|string',
-        ]);
+{
+    $validated = $request->validate([
+        'name'         => 'required|string|max:255',
+        'contact_info' => 'required|string',
+    ]);
 
-        $supplier->update($validated);
-        return redirect()->route('suppliers.index')->with('success', 'Supplier updated successfully.');
-    }
-
-    public function destroy(Supplier $supplier)
+    $supplier->update($validated);
+    return redirect()->route('suppliers.index')->with('success', 'Supplier updated successfully.');
+}    public function destroy(Supplier $supplier)
     {
         // Delete associated relationships before deleting the supplier (if necessary)
         // Example: $supplier->feeds()->delete(); (if you want to delete related feeds)

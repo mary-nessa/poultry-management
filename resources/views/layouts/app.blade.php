@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="csrf-token" content="{{ csrf_token() }}" />
   <title>Poultry Management System - @yield('title')</title>
   @vite('resources/css/app.css')
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -88,12 +89,20 @@
           <i class="fas fa-chevron-right transform transition-transform duration-200" :class="{'rotate-90': openBirdManagement}"></i>
         </button>
         <div x-show="openBirdManagement" class="pl-12 space-y-1">
+          
+          @can('manage breed')
+            <a href="{{ route('breeds.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Breeds</a>
+          @endcan
+
           @can('manage chick-purchase')
             <a href="{{ route('chick-purchases.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Bird Purchase</a>
           @endcan
+          
           @can('manage bird')
             <a href="{{ route('birds.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Bird Stock</a>
           @endcan
+      
+
           @can('manage bird-immunization')
             <a href="{{ route('bird-immunizations.index') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">Immunisations</a>
           @endcan
