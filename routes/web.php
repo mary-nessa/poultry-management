@@ -48,7 +48,7 @@ Route::middleware(['auth'])->group(function () {
     })->name('dashboard');
     // Profile page
     Route::get('/profile', [UserController::class, 'index'])->name('profile');
-    
+
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
 
@@ -126,6 +126,7 @@ Route::middleware(['auth', 'permission:manage branch'])->group(function () {
 Route::middleware(['auth', 'permission:manage user'])->group(function () {
     Route::resource('users', UserController::class);
     Route::post('/assign-roles', [UserController::class, 'assignRoles'])->name('roles.assign');
+    Route::post('/revoke-roles/{user_id}', [UserController::class, 'revokeRoles'])->name('roles.revoke');
 });
 
 Route::middleware(['auth', 'permission:manage bird'])->group(function () {

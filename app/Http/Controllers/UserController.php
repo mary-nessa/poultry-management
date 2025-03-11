@@ -34,7 +34,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        
+
         $validated = $request->validate([
             'name'      => 'required|string|max:255',
             'email'     => 'required|email|unique:users',
@@ -75,6 +75,21 @@ class UserController extends Controller
         return redirect()->back();
     }
 
+    public function revokeRoles(Request $request)
+    {
+        
+        $user = User::findOrFail($request->user_id);
+        DB::transaction(function () use ($user) {
+            $user->roles()->detach();
+        });
+        if ($request['role'] === 'manager') {
+            Branch::where('manager_id', $user->id)->update(['manager_id' => null]);
+        }
+
+        return redirect()->back()->with('success', 'Roles revoked successfully.');
+    }
+
+
     public function show(User $user)
     {
         return response()->json($user->load(['branch', 'roles']));
@@ -88,11 +103,11 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        
+
         try{
 
             \Log::info($request->all());
-            
+
             $validated = $request->validate([
                 'name'      => 'required|string|max:255',
                 'email'     => 'required|email|unique:users,email,'.$user->id,
@@ -100,13 +115,13 @@ class UserController extends Controller
                 'old_role'  => 'nullable',
                 'branch_id' => 'nullable|exists:branches,id',
             ]);
-    
-            
+
+
             // check if the user role has changed
             if ($validated['role'] !== $validated['old_role']) {
-                
+
                 // If the user is a manager, create a Manager record
-                if ($validated['role'] === 'manager' && $validated['branch_id']) {
+                if (($validated['role'] === 'manager' && $validated['branch_id'])||($validated['old_role'] === 'manager' && $validated['branch_id'] && $validated['role'] === NULL)) {
                     // assign the manager role to the user
                     $user->syncRoles('manager');
                     // change the manager_id in the branch table
@@ -124,21 +139,21 @@ class UserController extends Controller
                     $user->syncRoles($validated['role']);
                 }
             }
-    
+
                 $user->name = $validated['name'];
                 $user->email = $validated['email'];
                 $user->branch_id = $validated['branch_id'];
                 $user->save();
-            
-    
-    
-    
+
+
+
+
             return redirect()->route('users.index')->with('success', 'User updated successfully.');
         }catch(Exception $e){
             \Log::info($e->getMessage());
             return redirect()->route('users.index')->with('error', 'Error updating');
         }
-        
+
     }
 
     public function destroy(User $user)

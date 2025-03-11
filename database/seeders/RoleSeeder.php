@@ -28,6 +28,7 @@ class RoleSeeder extends Seeder
             'manage equipment',
             'manage product',
             'manage sale',
+            'manage breed',
             'manage egg-collection',
             'manage chick-purchase',
             'manage bird-immunization',
@@ -44,12 +45,12 @@ class RoleSeeder extends Seeder
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission]);
         }
-        
+
 
         /// Create the admin role and assign all permissions
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $adminRole->syncPermissions($permissions);
-        
+
 
     }
 }

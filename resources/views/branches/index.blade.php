@@ -36,7 +36,8 @@
                             @if($branch->manager)
                                 {{ $branch->manager->name }}
                             @else
-                                <button @click="openAssignBranchModal('{{ $branch->id }}', '{{ $branch->name }}')" class="text-blue-600 hover:text-blue-900">Assign Manager</button>
+                                No Manager
+{{--                                <button @click="openAssignBranchModal('{{ $branch->id }}', '{{ $branch->name }}')" class="text-blue-600 hover:text-blue-900">Assign Manager</button>--}}
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">

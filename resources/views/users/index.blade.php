@@ -37,6 +37,16 @@
                                 @foreach($user->roles as $role)
                                     {{ $role->name }}
                                 @endforeach
+{{--                                                                    revoke role--}}
+                                <br>
+                                <form action="{{ route('roles.revoke', $user->id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to revoke this role?')">
+                                    @csrf
+                                    @method('POST')
+
+                                    <input type="hidden" name="role" value="{{ $role->name }}">
+                                    <input type="hidden" name="user_id" value="{{ $user->id }}">
+                                    <button type="submit" class="text-red-600 hover:text-red-900 ">Revoke</button>
+                                </form>
                             @else
                                 <button type="button"
                                         class="text-blue-600 hover:text-blue-900 text-sm font-medium"
@@ -47,7 +57,7 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">{{  $user->branch->name ?? 'N/A' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            
+
                                 <button @click="openShowModal('{{ $user->id }}')" class="text-blue-600 hover:text-blue-900 mr-3">View</button>
                             <button @click="openEditModal('{{ $user->id }}')" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
                             <form action="{{ route('users.destroy', $user) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this user?')">
@@ -56,8 +66,8 @@
                                 <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
                             </form>
 
-                            
-                            
+
+
                         </td>
                     </tr>
                 @endforeach
@@ -101,7 +111,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        
+
                         <div class="mb-4">
                             <label for="role" class="block text-gray-700 text-sm font-bold mb-2">Role</label>
                             <select name="role" id="role" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
