@@ -20,7 +20,8 @@ return new class extends Migration
             $table->string('batch_id');
             $table->integer('purchase_age');
             $table->timestamp('purchase_date');
-            $table->string('breed');
+            $table->foreignId('breed_id')->nullable();
+            $table->foreign('breed_id')->references('id')->on('breeds')->onDelete('cascade');
             $table->integer('quantity');
             $table->float('unit_cost');
             $table->float('total_cost');

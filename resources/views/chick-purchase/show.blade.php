@@ -39,7 +39,7 @@
             <div class="bg-gray-50 px-6 py-4 border-b">
                 <div class="flex flex-col md:flex-row justify-between">
                     <div class="flex items-center mb-3 md:mb-0">
-                        <span class="bg-blue-100 text-blue-800 text-sm font-semibold px-3 py-1 rounded-full mr-3">{{ $chickPurchase->breed }}</span>
+                        <span class="bg-blue-100 text-blue-800 text-sm font-semibold px-3 py-1 rounded-full mr-3">{{ $chickPurchase->breed->name }}</span>
                         <span class="text-gray-700">{{ $chickPurchase->quantity }} birds</span>
                     </div>
                     <div class="flex flex-col md:flex-row md:items-center text-sm">
@@ -94,7 +94,7 @@
                         <div class="grid grid-cols-1 gap-3">
                             <div>
                                 <h3 class="text-sm font-medium text-gray-500">Breed</h3>
-                                <p class="text-gray-900 font-semibold">{{ $chickPurchase->breed }}</p>
+                                <p class="text-gray-900 font-semibold">{{ $chickPurchase->breed->name }}</p>
                             </div>
                             <div>
                                 <h3 class="text-sm font-medium text-gray-500">Purchase Age</h3>

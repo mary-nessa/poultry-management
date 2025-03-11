@@ -38,7 +38,12 @@
                 </div>
                 <div>
                     <label for="breed_filter" class="block text-sm font-medium text-gray-700 mb-1">Breed</label>
-                    <input type="text" name="breed" id="breed_filter" value="{{ request('breed') }}" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                    <select name="breed" id="breed_filter" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                        <option value="">All Breeds</option>
+                        @foreach($breeds as $breed)
+                            <option value="{{ $breed->id }}" {{ request('breed') == $breed->id ? 'selected' : '' }}>{{ $breed->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div>
                     <label for="date_from" class="block text-sm font-medium text-gray-700 mb-1">Date From</label>
@@ -86,7 +91,7 @@
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $chickPurchases->firstItem() + $index }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $purchase->branch->name }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $purchase->breed }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $purchase->breed->name }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $purchase->quantity }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ date('d-m-Y', strtotime($purchase->purchase_date)) }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -133,7 +138,7 @@
                                         @endforeach
                                     </select>
                                 @else
-                                    <input type="text" value="{{ auth()->user()->branch?->name?? 'No branch assigned' }}" readonly class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                    <input type="text" value="{{ auth()->user()->branch?->name ?? 'No branch assigned' }}" readonly class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                     <input type="hidden" name="branch_id" value="{{ auth()->user()->branch?->id }}">
                                 @endif
                             </div>
@@ -147,8 +152,13 @@
                                 </select>
                             </div>
                             <div class="mb-4">
-                                <label for="breed" class="block text-gray-700 text-sm font-bold mb-2">Breed</label>
-                                <input type="text" name="breed" id="breed" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                <label for="breed_id" class="block text-gray-700 text-sm font-bold mb-2">Breed</label>
+                                <select name="breed_id" id="breed_id" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                    <option value="">Select Breed</option>
+                                    @foreach($breeds as $breed)
+                                        <option value="{{ $breed->id }}">{{ $breed->name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                             <div class="mb-4">
                                 <label for="purchase_age" class="block text-gray-700 text-sm font-bold mb-2">Purchase Age (in days)</label>

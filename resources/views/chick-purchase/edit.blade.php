@@ -38,8 +38,13 @@
                         </select>
                     </div>
                     <div class="mb-4">
-                        <label for="breed" class="block text-gray-700 text-sm font-bold mb-2">Breed</label>
-                        <input type="text" name="breed" id="breed" required value="{{ $chickPurchase->breed }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <label for="breed_id" class="block text-gray-700 text-sm font-bold mb-2">Breed</label>
+                        <select name="breed_id" id="breed_id" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            <option value="">Select Breed</option>
+                            @foreach($breeds as $breed)
+                                <option value="{{ $breed->id }}" {{ $chickPurchase->breed_id == $breed->id ? 'selected' : '' }}>{{ $breed->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="mb-4">
                         <label for="purchase_age" class="block text-gray-700 text-sm font-bold mb-2">Purchase Age (in days)</label>

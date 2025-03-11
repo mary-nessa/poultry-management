@@ -79,7 +79,7 @@
                             </div>
                         </div>
 
-                        <!-- Purchase Date -->
+                        {{-- <!-- Purchase Date -->
                         <div>
                             <label for="purchase_date" class="block text-sm font-medium text-gray-700 mb-1">Purchase Date <span class="text-red-500">*</span></label>
                             <div class="mt-1 relative rounded-md shadow-sm">
@@ -96,7 +96,7 @@
                                     <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
                                 @endforeach
                             </select>
-                        </div>
+                        </div> --}}
 
                         <!-- Notes -->
                         <div class="col-span-1 md:col-span-2">
@@ -215,12 +215,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitCartBtn = document.getElementById('submitCart');
     const quantityInput = document.getElementById('quantity_kg');
     const unitCostInput = document.getElementById('unit_cost');
-    const purchaseDateInput = document.getElementById('purchase_date');
     const totalCostDisplay = document.getElementById('totalCost');
     let cartItems = [];
+    
+   // Set default quantity to 1
+   quantityInput.value = 1;
 
-    // Set max date for purchase date to today
-    purchaseDateInput.max = new Date().toISOString().split('T')[0];
+   // Pagination variables
+   let currentPage = 1;
+    const itemsPerPage = 5;
+    
+
+    // Store suppliers data for use in the cart
+    const suppliers = [
+        { id: '', name: 'No Supplier' },
+        // This will be populated with the suppliers from your backend
+        @foreach($suppliers as $supplier)
+            { id: '{{ $supplier->id }}', name: '{{ $supplier->name }}' },
+        @endforeach
+    ];
 
     // Calculate and update total cost
     function updateTotalCost() {
@@ -245,71 +258,210 @@ document.addEventListener('DOMContentLoaded', function() {
         const feedTypeId = document.getElementById('feed_type_id').value;
         const quantity = parseFloat(quantityInput.value);
         const unitCost = parseFloat(unitCostInput.value);
-        const purchaseDate = purchaseDateInput.value;
-        const supplierId = document.getElementById('supplier_id').value;
         const notes = document.getElementById('notes').value;
 
         // Validation
-        if (!feedTypeId || quantity <= 0 || unitCost <= 0 || !purchaseDate) {
+        if (!feedTypeId || quantity <= 0 || unitCost <= 0) {
             alert('Please fill all required fields with valid values');
             return;
         }
 
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        if (new Date(purchaseDate) > today) {
-            alert('Purchase date cannot be in the future');
+        const feedTypeName = document.getElementById('feed_type_id').selectedOptions[0].text;
+        const total = quantity * unitCost;
+        
+        // Check for duplicate feed type
+        const isDuplicate = cartItems.some(item => item.feed_type_id === feedTypeId);
+        if (isDuplicate) {
+            alert('This feed type is already in your cart. Please update the quantity instead of adding a duplicate.');
             return;
         }
-
-        const feedTypeName = document.getElementById('feed_type_id').selectedOptions[0].text;
-        const supplierName = supplierId ? document.getElementById('supplier_id').selectedOptions[0].text : 'No Supplier';
-        const total = quantity * unitCost;
 
         cartItems.push({
             feed_type_id: feedTypeId,
             quantity_kg: quantity,
             unit_cost: unitCost,
-            purchase_date: purchaseDate,
-            supplier_id: supplierId || null,
+            purchase_date: '',  // Empty initially
+            supplier_id: '',    // Empty initially
             notes: notes,
             feed_type_name: feedTypeName,
-            supplier_name: supplierName,
+            supplier_name: 'No Supplier',
             total: total
         });
 
         updateCartDisplay();
         feedForm.reset();
         document.getElementById('feed_type_id').value = '';
-        document.getElementById('supplier_id').value = '';
         updateTotalCost();
     });
+
+    // Add bulk date and supplier controls above the cart
+    function addBulkControls() {
+        const cartContainer = document.querySelector('.bg-white.shadow-md.rounded-lg.overflow-hidden:nth-child(2)');
+        if (!cartContainer) return;
+        
+        // Check if controls already exist
+        if (document.getElementById('bulkControls')) return;
+        
+        // Create the controls
+        const bulkControls = document.createElement('div');
+        bulkControls.id = 'bulkControls';
+        bulkControls.className = 'p-4 bg-gray-50 border-b border-gray-200';
+        
+        // Today's date
+        const today = new Date().toISOString().split('T')[0];
+        
+        bulkControls.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="bulkDate" class="block text-sm font-medium text-gray-700 mb-1">Set Date for All Items</label>
+                    <div class="flex">
+                        <input type="date" id="bulkDate" class="flex-grow rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" value="${today}" max="${today}">
+                        <button type="button" id="applyBulkDate" class="ml-2 px-3 py-2 bg-blue-500 text-white text-sm font-medium rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Apply</button>
+                    </div>
+                </div>
+                <div>
+                    <label for="bulkSupplier" class="block text-sm font-medium text-gray-700 mb-1">Set Supplier for All Items</label>
+                    <div class="flex">
+                        <select id="bulkSupplier" class="flex-grow rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <option value="">No Supplier</option>
+                            ${suppliers.filter(s => s.id !== '').map(s => `<option value="${s.id}">${s.name}</option>`).join('')}
+                        </select>
+                        <button type="button" id="applyBulkSupplier" class="ml-2 px-3 py-2 bg-blue-500 text-white text-sm font-medium rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Apply</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Insert bulk controls before the cart
+        const cartHeader = cartContainer.querySelector('h2');
+        if (cartHeader && cartHeader.parentNode) {
+            cartHeader.parentNode.insertBefore(bulkControls, cartHeader);
+        } else {
+            cartContainer.insertBefore(bulkControls, cartContainer.firstChild);
+        }
+        
+        // Add event listeners for bulk actions
+        document.getElementById('applyBulkDate').addEventListener('click', function() {
+            const bulkDate = document.getElementById('bulkDate').value;
+            if (!bulkDate) return;
+            
+            cartItems.forEach(item => {
+                item.purchase_date = bulkDate;
+            });
+            updateCartDisplay();
+        });
+        
+        document.getElementById('applyBulkSupplier').addEventListener('click', function() {
+            const bulkSupplier = document.getElementById('bulkSupplier');
+            const supplierId = bulkSupplier.value;
+            const supplierName = bulkSupplier.options[bulkSupplier.selectedIndex].text;
+            
+            cartItems.forEach(item => {
+                item.supplier_id = supplierId;
+                item.supplier_name = supplierName;
+            });
+            updateCartDisplay();
+        });
+    }
 
     // Update Cart Display
     function updateCartDisplay() {
         cartBody.innerHTML = '';
         let grandTotal = 0;
 
+        // Add bulk controls if they don't exist yet
+        addBulkControls();
+        
+        // Disable submit button if any item is missing a date
+        const hasIncompleteDates = cartItems.some(item => !item.purchase_date);
+        submitCartBtn.disabled = cartItems.length === 0 || hasIncompleteDates;
+        
+        // Show warning if dates are missing
+        const warningElement = document.getElementById('dateWarning') || document.createElement('div');
+        warningElement.id = 'dateWarning';
+        warningElement.className = hasIncompleteDates ? 
+            'p-2 mb-4 text-sm text-yellow-700 bg-yellow-100 rounded-md' : 
+            'hidden';
+        warningElement.textContent = 'All items must have a purchase date before you can save.';
+        
+        // Insert warning before the submit button
+        const buttonContainer = submitCartBtn.parentNode;
+        if (!document.getElementById('dateWarning') && buttonContainer) {
+            buttonContainer.insertBefore(warningElement, submitCartBtn);
+        }
+
         cartItems.forEach((item, index) => {
             const row = document.createElement('tr');
+            
+            // Create date input for the cart item
+            const dateInput = document.createElement('input');
+            dateInput.type = 'date';
+            dateInput.className = 'border-gray-300 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50';
+            dateInput.value = item.purchase_date;
+            dateInput.max = new Date().toISOString().split('T')[0];
+            dateInput.required = true;
+            dateInput.addEventListener('change', function() {
+                // Update the item's purchase date
+                item.purchase_date = this.value;
+                // Re-check submit button state
+                updateCartDisplay();
+            });
+            
+            // Create supplier select for the cart item
+            const supplierSelect = document.createElement('select');
+            supplierSelect.className = 'border-gray-300 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50';
+            
+            // Add all supplier options
+            suppliers.forEach(supplier => {
+                const option = document.createElement('option');
+                option.value = supplier.id;
+                option.textContent = supplier.name;
+                supplierSelect.appendChild(option);
+            });
+            
+            // Set the selected supplier
+            supplierSelect.value = item.supplier_id;
+            
+            // Update the item's supplier when changed
+            supplierSelect.addEventListener('change', function() {
+                item.supplier_id = this.value;
+                item.supplier_name = this.options[this.selectedIndex].text;
+            });
+            
             row.innerHTML = `
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.feed_type_name}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.quantity_kg.toFixed(2)} kg</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">UGX ${item.unit_cost.toLocaleString()}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">UGX ${item.total.toLocaleString()}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.purchase_date}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${item.supplier_name}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
                 <td class="px-6 py-4 text-sm text-gray-900">${item.notes || '-'}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <button type="button" class="text-red-600 hover:text-red-900 remove-item" data-index="${index}">Remove</button>
                 </td>
             `;
+            
+            // Replace the empty date cell with the date input
+            const dateTd = row.querySelector('td:nth-child(5)');
+            dateTd.textContent = '';
+            dateTd.appendChild(dateInput);
+            
+            // Highlight missing dates
+            if (!item.purchase_date) {
+                dateTd.classList.add('bg-yellow-50');
+                dateInput.classList.add('border-yellow-400');
+            }
+            
+            // Replace the empty supplier cell with the supplier select
+            const supplierTd = row.querySelector('td:nth-child(6)');
+            supplierTd.textContent = '';
+            supplierTd.appendChild(supplierSelect);
+            
             cartBody.appendChild(row);
             grandTotal += item.total;
         });
 
         grandTotalDisplay.textContent = `UGX ${grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-        submitCartBtn.disabled = cartItems.length === 0;
     }
 
     // Remove Item
@@ -324,6 +476,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Submit Cart with Redirect
     submitCartBtn.addEventListener('click', function() {
         if (cartItems.length === 0) return;
+        
+        // Check if all items have dates
+        const missingDates = cartItems.some(item => !item.purchase_date);
+        if (missingDates) {
+            alert('All items must have a purchase date');
+            return;
+        }
 
         fetch('{{ route('feeds.store') }}', {
             method: 'POST',
@@ -348,55 +507,6 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Error:', error);
             alert('An error occurred while saving feeds');
-        });
-    });
-
-    // Feed Type Modal Handling
-    const saveFeedTypeBtn = document.getElementById('saveFeedTypeBtn');
-    const createForm = document.getElementById('createForm');
-
-    saveFeedTypeBtn.addEventListener('click', function() {
-        const nameInput = document.getElementById('create_name');
-        if (!nameInput.value.trim()) {
-            alert('Feed type name is required');
-            nameInput.focus();
-            return;
-        }
-
-        const payload = {
-            name: nameInput.value.trim(),
-            description: document.getElementById('create_description').value.trim()
-        };
-
-        fetch(createForm.action, {
-            method: 'POST',
-            body: JSON.stringify(payload),
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const feedTypeSelect = document.getElementById('feed_type_id');
-                const newOption = document.createElement('option');
-                newOption.value = data.feedType.id;
-                newOption.textContent = data.feedType.name;
-                feedTypeSelect.appendChild(newOption);
-                feedTypeSelect.value = data.feedType.id;
-                document.getElementById('createModal').classList.add('hidden');
-                createForm.reset();
-                alert('Feed type added successfully');
-            } else {
-                alert('Error adding feed type: ' + (data.message || 'Unknown error'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred: ' + error.message);
         });
     });
 
