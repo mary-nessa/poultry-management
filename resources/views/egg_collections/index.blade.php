@@ -21,8 +21,9 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Collection Date</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branch</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Good Eggs</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Full Trays</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Half Trays</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Singles</th>
@@ -32,8 +33,9 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 @foreach($eggCollections as $collection)
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $collection->created_at->format('M d, Y') }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ $collection->collection_date ? $collection->collection_date->format('M d, Y H:i') : $collection->created_at->format('M d, Y H:i') }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $collection->branch->name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ $collection->good_eggs }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $collection->full_trays }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $collection->{'1_2_trays'} }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $collection->single_eggs }}</td>
@@ -72,6 +74,12 @@
                                     <option value="{{ $branch->id }}">{{ $branch->name }}</option>
                                 @endforeach
                             </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="collection_date" class="block text-gray-700 text-sm font-bold mb-2">Collection Date</label>
+                            <input type="datetime-local" name="collection_date" id="collection_date" required 
+                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                         </div>
 
                         <div class="mb-4">
@@ -143,6 +151,12 @@
                         </div>
 
                         <div class="mb-4">
+                            <label for="edit_collection_date" class="block text-gray-700 text-sm font-bold mb-2">Collection Date</label>
+                            <input type="datetime-local" name="collection_date" id="edit_collection_date" x-model="editCollectionData.collection_date" required 
+                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        </div>
+
+                        <div class="mb-4">
                             <label for="edit_good_eggs" class="block text-gray-700 text-sm font-bold mb-2">Good Eggs</label>
                             <input type="number" name="good_eggs" id="edit_good_eggs" x-model="editCollectionData.good_eggs" required min="0" 
                                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -205,19 +219,19 @@
                         </button>
                     </div>
 
-                    <!-- Branch Information -->
+                    <!-- Collection Information -->
                     <div class="mb-6">
-                        <h4 class="text-sm font-medium text-gray-900 mb-2">Branch Information</h4>
+                        <h4 class="text-sm font-medium text-gray-900 mb-2">Collection Information</h4>
                         <div class="bg-gray-50 rounded-md p-4">
-                            <p class="text-sm text-gray-600">Branch Name: <span class="text-gray-900" x-text="showCollectionData.branch?.name"></span></p>
-                            <p class="text-sm text-gray-600 mt-1">Collection Date: <span class="text-gray-900" x-text="formatDate(showCollectionData.created_at)"></span></p>
+                            <p class="text-sm text-gray-600">Branch: <span class="text-gray-900" x-text="showCollectionData.branch?.name"></span></p>
+                            <p class="text-sm text-gray-600 mt-1">Collection Date: <span class="text-gray-900" x-text="formatDate(showCollectionData.collection_date)"></span></p>
                             <p class="text-sm text-gray-600 mt-1">Collected By: <span class="text-gray-900" x-text="showCollectionData.collected_by?.name"></span></p>
                         </div>
                     </div>
 
-                    <!-- Collection Details -->
+                    <!-- Eggs Summary -->
                     <div class="mb-6">
-                        <h4 class="text-sm font-medium text-gray-900 mb-2">Collection Details</h4>
+                        <h4 class="text-sm font-medium text-gray-900 mb-2">Eggs Summary</h4>
                         <div class="grid grid-cols-2 gap-4 bg-gray-50 rounded-md p-4">
                             <div>
                                 <p class="text-sm text-gray-600">Total Eggs: <span class="text-gray-900" x-text="showCollectionData.total_eggs"></span></p>
@@ -226,7 +240,7 @@
                             </div>
                             <div>
                                 <p class="text-sm text-gray-600">Full Trays: <span class="text-gray-900" x-text="showCollectionData.full_trays"></span></p>
-                                <p class="text-sm text-gray-600 mt-1">Half Trays: <span class="text-gray-900" x-text="showCollectionData.1_2_trays"></span></p>
+                                <p class="text-sm text-gray-600 mt-1">Half Trays: <span class="text-gray-900" x-text="showCollectionData['1_2_trays']"></span></p>
                                 <p class="text-sm text-gray-600 mt-1">Single Eggs: <span class="text-gray-900" x-text="showCollectionData.single_eggs"></span></p>
                             </div>
                         </div>
@@ -252,6 +266,7 @@
             editCollectionId: null,
             editCollectionData: {
                 branch_id: '',
+                collection_date: '',
                 good_eggs: 0,
                 damaged_eggs: 0,
                 collected_by: '',
@@ -265,7 +280,7 @@
                 full_trays: 0,
                 '1_2_trays': 0,
                 single_eggs: 0,
-                created_at: null
+                collection_date: null
             },
             totalEggs: 0,
             fullTrays: 0,
@@ -306,6 +321,8 @@
 
             openCreateModal() {
                 this.showCreateModal = true;
+                // Set default collection date to current date and time
+                document.getElementById('collection_date').value = new Date().toISOString().slice(0, 16);
             },
 
             async openEditModal(collectionId) {
@@ -313,9 +330,23 @@
                 try {
                     const response = await fetch(`/egg-collections/${collectionId}/edit`);
                     const data = await response.json();
-                    this.editCollectionData = data;
+                    this.editCollectionData = {
+                        ...data,
+                        collection_date: data.collection_date ? new Date(data.collection_date).toISOString().slice(0, 16) : new Date().toISOString().slice(0, 16)
+                    };
                     this.calculateEditTotalEggs();
                     this.showEditModal = true;
+                } catch (error) {
+                    console.error('Error fetching collection data:', error);
+                }
+            },
+
+            async openShowModal(collectionId) {
+                try {
+                    const response = await fetch(`/egg-collections/${collectionId}`);
+                    const data = await response.json();
+                    this.showCollectionData = data;
+                    this.showShowModal = true;
                 } catch (error) {
                     console.error('Error fetching collection data:', error);
                 }
@@ -331,17 +362,6 @@
                     hour: '2-digit',
                     minute: '2-digit'
                 });
-            },
-
-            async openShowModal(collectionId) {
-                try {
-                    const response = await fetch(`/egg-collections/${collectionId}`);
-                    const data = await response.json();
-                    this.showCollectionData = data;
-                    this.showShowModal = true;
-                } catch (error) {
-                    console.error('Error fetching collection data:', error);
-                }
             }
         }
     }
