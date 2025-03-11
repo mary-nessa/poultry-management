@@ -25,4 +25,9 @@ class Medicine extends Model
     {
         return $this->hasMany(Expense::class);
     }
+
+    public function immunizationRecords(): HasMany
+    {
+        return $this->hasMany(ImmunizationRecord::class, 'vaccine_id');
+    }
 }

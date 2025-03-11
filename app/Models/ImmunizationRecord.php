@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\HasUUID;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ImmunizationRecord extends Model
 {
@@ -20,21 +21,19 @@ class ImmunizationRecord extends Model
         'age_category',
     ];
 
-    /**
-     * Relationship with ChickPurchase
-     */
-    public function chickPurchase()
+    protected $casts = [
+        'immunization_date' => 'date',
+        'next_due_date' => 'date',
+        'number_immunized' => 'integer'
+    ];
+
+    public function chickPurchase(): BelongsTo
     {
         return $this->belongsTo(ChickPurchase::class, 'chick_purchase_id');
     }
 
-    /**
-     * Relationship with Medicine (as a vaccine)
-     */
-    public function vaccine()
+    public function vaccine(): BelongsTo
     {
         return $this->belongsTo(Medicine::class, 'vaccine_id');
     }
-
-
 }
