@@ -77,7 +77,7 @@ class UserController extends Controller
 
     public function revokeRoles(Request $request)
     {
-        
+
         $user = User::findOrFail($request->user_id);
         DB::transaction(function () use ($user) {
             $user->roles()->detach();
