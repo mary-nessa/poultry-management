@@ -25,7 +25,7 @@
 
     <!-- Search Filter -->
     <div class="bg-white shadow-md rounded-lg p-4 mb-6">
-        <form action="{{ route('breeds.index') }}" method="GET" class="flex gap-4">
+        <form action="{{ route('breeds.index') }}" method="GET" class="flex flex-col sm:flex-row gap-4">
             <div class="flex-1">
                 <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
                 <input type="text" name="search" id="search" value="{{ request('search') }}" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Search by name or description">
@@ -41,9 +41,33 @@
         </form>
     </div>
 
-    <!-- Table -->
+    <!-- Responsive Table -->
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
-        <div class="overflow-x-auto">
+        <div class="block md:hidden">
+            @forelse($breeds as $breed)
+                <div class="border-b border-gray-200 p-4">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">#{{ $breeds->firstItem() + $loop->index }}</p>
+                            <p class="text-lg font-semibold text-gray-900">{{ $breed->name }}</p>
+                            <p class="text-gray-600">{{ $breed->description ?? '-' }}</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button type="button" class="text-blue-600 hover:text-blue-900" onclick="openShowModal({{ $breed->id }})">View</button>
+                            <button type="button" class="text-indigo-600 hover:text-indigo-900" onclick="openEditModal({{ $breed->id }})">Edit</button>
+                            <form action="{{ route('breeds.destroy', $breed) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this breed?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="p-4 text-center text-gray-500">No breeds found.</div>
+            @endforelse
+        </div>
+        <div class="hidden md:block overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
@@ -60,13 +84,15 @@
                             <td class="px-6 py-4 whitespace-nowrap">{{ $breed->name }}</td>
                             <td class="px-6 py-4">{{ $breed->description ?? '-' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button type="button" class="text-blue-600 hover:text-blue-900" onclick="openShowModal({{ $breed->id }})">View</button>
-                                <button type="button" class="text-indigo-600 hover:text-indigo-900" onclick="openEditModal({{ $breed->id }})">Edit</button>
-                                <form action="{{ route('breeds.destroy', $breed) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this breed?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
-                                </form>
+                                <div class="flex space-x-2">
+                                    <button type="button" class="text-blue-600 hover:text-blue-900" onclick="openShowModal({{ $breed->id }})">View</button>
+                                    <button type="button" class="text-indigo-600 hover:text-indigo-900" onclick="openEditModal({{ $breed->id }})">Edit</button>
+                                    <form action="{{ route('breeds.destroy', $breed) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this breed?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty
@@ -77,8 +103,33 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination -->
         <div class="px-6 py-4 bg-white border-t border-gray-200">
-            {{ $breeds->appends(request()->query())->links() }}
+            <nav class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+                <div class="text-sm text-gray-700">
+                    Showing {{ $breeds->firstItem() }} to {{ $breeds->lastItem() }} of {{ $breeds->total() }} breeds
+                </div>
+                <div class="flex space-x-2">
+                    @if ($breeds->onFirstPage())
+                        <span class="px-3 py-2 text-gray-400 bg-gray-100 rounded-md cursor-not-allowed">Previous</span>
+                    @else
+                        <a href="{{ $breeds->previousPageUrl() }}" class="px-3 py-2 text-blue-600 bg-blue-100 hover:bg-blue-200 rounded-md">Previous</a>
+                    @endif
+                    @foreach ($breeds->links()->elements[0] as $page => $url)
+                        @if ($page == $breeds->currentPage())
+                            <span class="px-3 py-2 text-white bg-blue-500 rounded-md">{{ $page }}</span>
+                        @else
+                            <a href="{{ $url }}" class="px-3 py-2 text-blue-600 bg-blue-100 hover:bg-blue-200 rounded-md">{{ $page }}</a>
+                        @endif
+                    @endforeach
+                    @if ($breeds->hasMorePages())
+                        <a href="{{ $breeds->nextPageUrl() }}" class="px-3 py-2 text-blue-600 bg-blue-100 hover:bg-blue-200 rounded-md">Next</a>
+                    @else
+                        <span class="px-3 py-2 text-gray-400 bg-gray-100 rounded-md cursor-not-allowed">Next</span>
+                    @endif
+                </div>
+            </nav>
         </div>
     </div>
 
@@ -121,117 +172,117 @@
             </div>
         </div>
     </div>
+</div>
 
-    <!-- JavaScript -->
-    <script>
-        function openCreateModal() {
-            document.getElementById('modal-title').textContent = 'Create New Breed';
-            document.getElementById('breed-form').action = '{{ route('breeds.store') }}';
-            document.getElementById('method').value = '';
-            document.getElementById('name').value = '';
-            document.getElementById('description').value = '';
+<!-- JavaScript -->
+<script>
+    function openCreateModal() {
+        document.getElementById('modal-title').textContent = 'Create New Breed';
+        document.getElementById('breed-form').action = '{{ route('breeds.store') }}';
+        document.getElementById('method').value = '';
+        document.getElementById('name').value = '';
+        document.getElementById('description').value = '';
+        document.getElementById('breed-form').classList.remove('hidden');
+        document.getElementById('show-content').classList.add('hidden');
+        document.getElementById('submit-form').textContent = 'Create';
+        document.getElementById('modal').classList.remove('hidden');
+    }
+
+    function openEditModal(id) {
+        fetch(`/breeds/${id}`, {
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('modal-title').textContent = 'Edit Breed';
+            document.getElementById('breed-form').action = `/breeds/${id}`;
+            document.getElementById('method').value = 'PUT';
+            document.getElementById('name').value = data.name;
+            document.getElementById('description').value = data.description || '';
             document.getElementById('breed-form').classList.remove('hidden');
             document.getElementById('show-content').classList.add('hidden');
-            document.getElementById('submit-form').textContent = 'Create';
+            document.getElementById('submit-form').textContent = 'Update';
             document.getElementById('modal').classList.remove('hidden');
-        }
+        })
+        .catch(error => console.error('Error:', error));
+    }
 
-        function openEditModal(id) {
-            fetch(`/breeds/${id}`, {
-                headers: {
-                    'Accept': 'application/json'
+    function openShowModal(id) {
+        fetch(`/breeds/${id}`, {
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('modal-title').textContent = 'Breed Details';
+            document.getElementById('show-name').textContent = data.name;
+            document.getElementById('show-description').textContent = data.description || 'N/A';
+            document.getElementById('breed-form').classList.add('hidden');
+            document.getElementById('show-content').classList.remove('hidden');
+            document.getElementById('modal').classList.remove('hidden');
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    document.getElementById('close-modal').addEventListener('click', function() {
+        document.getElementById('modal').classList.add('hidden');
+    });
+
+    document.getElementById('close-show').addEventListener('click', function() {
+        document.getElementById('modal').classList.add('hidden');
+    });
+
+    document.getElementById('modal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.classList.add('hidden');
+        }
+    });
+
+    document.getElementById('breed-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = this;
+        const method = document.getElementById('method').value || 'POST';
+        fetch(form.action, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                name: document.getElementById('name').value,
+                description: document.getElementById('description').value
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json().then(data => ({ data, status: response.status }));
+            } else {
+                return response.json().then(data => Promise.reject({ data, status: response.status }));
+            }
+        })
+        .then(({ data, status }) => {
+            if (status === 200 || status === 201) {
+                alert('Breed saved successfully!');
+                document.getElementById('modal').classList.add('hidden');
+                location.reload();
+            }
+        })
+        .catch(({ data, status }) => {
+            if (status === 422) {
+                const errors = data.errors;
+                let errorMessage = 'Validation errors:\n';
+                for (const field in errors) {
+                    errorMessage += `- ${field}: ${errors[field].join(', ')}\n`;
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('modal-title').textContent = 'Edit Breed';
-                document.getElementById('breed-form').action = `/breeds/${id}`;
-                document.getElementById('method').value = 'PUT';
-                document.getElementById('name').value = data.name;
-                document.getElementById('description').value = data.description || '';
-                document.getElementById('breed-form').classList.remove('hidden');
-                document.getElementById('show-content').classList.add('hidden');
-                document.getElementById('submit-form').textContent = 'Update';
-                document.getElementById('modal').classList.remove('hidden');
-            })
-            .catch(error => console.error('Error:', error));
-        }
-
-        function openShowModal(id) {
-            fetch(`/breeds/${id}`, {
-                headers: {
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('modal-title').textContent = 'Breed Details';
-                document.getElementById('show-name').textContent = data.name;
-                document.getElementById('show-description').textContent = data.description || 'N/A';
-                document.getElementById('breed-form').classList.add('hidden');
-                document.getElementById('show-content').classList.remove('hidden');
-                document.getElementById('modal').classList.remove('hidden');
-            })
-            .catch(error => console.error('Error:', error));
-        }
-
-        document.getElementById('close-modal').addEventListener('click', function() {
-            document.getElementById('modal').classList.add('hidden');
-        });
-
-        document.getElementById('close-show').addEventListener('click', function() {
-            document.getElementById('modal').classList.add('hidden');
-        });
-
-        document.getElementById('modal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                this.classList.add('hidden');
+                alert(errorMessage);
+            } else {
+                alert('Error: ' + (data.message || 'Unknown error'));
             }
         });
-
-        document.getElementById('breed-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const form = this;
-            const method = document.getElementById('method').value || 'POST';
-            fetch(form.action, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    name: document.getElementById('name').value,
-                    description: document.getElementById('description').value
-                })
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.json().then(data => ({ data, status: response.status }));
-                } else {
-                    return response.json().then(data => Promise.reject({ data, status: response.status }));
-                }
-            })
-            .then(({ data, status }) => {
-                if (status === 200 || status === 201) {
-                    alert('Breed saved successfully!');
-                    document.getElementById('modal').classList.add('hidden');
-                    location.reload();
-                }
-            })
-            .catch(({ data, status }) => {
-                if (status === 422) {
-                    const errors = data.errors;
-                    let errorMessage = 'Validation errors:\n';
-                    for (const field in errors) {
-                        errorMessage += `- ${field}: ${errors[field].join(', ')}\n`;
-                    }
-                    alert(errorMessage);
-                } else {
-                    alert('Error: ' + (data.message || 'Unknown error'));
-                }
-            });
-        });
-    </script>
-</div>
+    });
+</script>
 @endsection

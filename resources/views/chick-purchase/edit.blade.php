@@ -23,6 +23,9 @@
                                     <option value="{{ $branch->id }}" {{ $chickPurchase->branch_id == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
                                 @endforeach
                             </select>
+                            @error('branch_id')
+                                <span class="text-red-500 text-xs">{{ $message }}</span>
+                            @enderror
                         @else
                             <input type="text" value="{{ auth()->user()->branch?->name ?? 'No branch assigned' }}" readonly class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                             <input type="hidden" name="branch_id" value="{{ auth()->user()->branch?->id }}">
@@ -36,6 +39,9 @@
                                 <option value="{{ $supplier->id }}" {{ $chickPurchase->supplier_id == $supplier->id ? 'selected' : '' }}>{{ $supplier->name }}</option>
                             @endforeach
                         </select>
+                        @error('supplier_id')
+                            <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
                     </div>
                     <div class="mb-4">
                         <label for="breed_id" class="block text-gray-700 text-sm font-bold mb-2">Breed</label>
@@ -45,32 +51,50 @@
                                 <option value="{{ $breed->id }}" {{ $chickPurchase->breed_id == $breed->id ? 'selected' : '' }}>{{ $breed->name }}</option>
                             @endforeach
                         </select>
+                        @error('breed_id')
+                            <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
                     </div>
                     <div class="mb-4">
                         <label for="purchase_age" class="block text-gray-700 text-sm font-bold mb-2">Purchase Age (in days)</label>
-                        <input type="number" name="purchase_age" id="purchase_age" min="0" required value="{{ $chickPurchase->purchase_age }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <input type="number" name="purchase_age" id="purchase_age" min="0" required value="{{ old('purchase_age', $chickPurchase->purchase_age) }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        @error('purchase_age')
+                            <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
                     </div>
                     <div class="mb-4">
                         <label for="purchase_date" class="block text-sm font-medium text-gray-700">Purchase Date</label>
                         <input type="date" 
                                name="purchase_date" 
                                id="purchase_date" 
-                               class="mt-1 block w-full border-gray-300 rounded-md"
-                               value="{{ $chickPurchase->purchase_date }}" 
+                               class="mt-1 block w-full border-gray-300 rounded-md focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                               value="{{ old('purchase_date', $chickPurchase->purchase_date->format('Y-m-d')) }}"
                                required 
                                max="{{ date('Y-m-d') }}">
+                        @error('purchase_date')
+                            <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
                     </div>
                     <div class="mb-4">
                         <label for="quantity" class="block text-gray-700 text-sm font-bold mb-2">Quantity</label>
-                        <input type="number" name="quantity" id="quantity" min="1" required value="{{ $chickPurchase->quantity }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <input type="number" name="quantity" id="quantity" min="1" required value="{{ old('quantity', $chickPurchase->quantity) }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        @error('quantity')
+                            <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
                     </div>
                     <div class="mb-4">
                         <label for="unit_cost" class="block text-gray-700 text-sm font-bold mb-2">Unit Cost</label>
-                        <input type="number" step="0.01" name="unit_cost" id="unit_cost" required value="{{ $chickPurchase->unit_cost }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <input type="number" step="0.01" name="unit_cost" id="unit_cost" required value="{{ old('unit_cost', $chickPurchase->unit_cost) }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        @error('unit_cost')
+                            <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
                     </div>
                     <div class="mb-4">
                         <label for="total_cost" class="block text-gray-700 text-sm font-bold mb-2">Total Cost</label>
-                        <input type="number" step="0.01" name="total_cost" id="total_cost" readonly value="{{ $chickPurchase->total_cost }}" class="bg-gray-100 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight">
+                        <input type="number" step="0.01" name="total_cost" id="total_cost" value="{{ old('total_cost', $chickPurchase->total_cost) }}" class="bg-gray-100 shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight" readonly>
+                        @error('total_cost')
+                            <span class="text-red-500 text-xs">{{ $message }}</span>
+                        @enderror
                     </div>
                 </div>
                 <div class="flex justify-end mt-6">
@@ -98,6 +122,10 @@
                     totalCostInput.value = (quantity * unitCost).toFixed(2);
                 }
                 
+                // Initial calculation
+                calculateTotalCost();
+                
+                // Recalculate on input change
                 quantityInput.addEventListener('input', calculateTotalCost);
                 unitCostInput.addEventListener('input', calculateTotalCost);
             });
