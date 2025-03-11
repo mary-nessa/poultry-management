@@ -20,6 +20,7 @@ class EggCollection extends Model
         'single_eggs',
         'collected_by',
         'branch_id',
+        'collection_date',
     ];
 
     protected $casts = [
@@ -30,6 +31,7 @@ class EggCollection extends Model
         'full_trays' => 'integer',
         '1_2_trays' => 'integer',
         'single_eggs' => 'integer',
+        'collection_date' => 'datetime',
     ];
 
     public function collectedBy()
@@ -40,37 +42,5 @@ class EggCollection extends Model
     public function branch()
     {
         return $this->belongsTo(Branch::class);
-    }
-
-    public function sale()
-    {
-        return $this->belongsTo(Sale::class);
-    }
-
-    // Calculate total eggs based on good and damaged eggs
-    protected static function boot()
-    {
-        parent::boot();
-        
-        static::saving(function ($model) {
-            $model->total_eggs = $model->good_eggs + $model->damaged_eggs;
-        });
-    }
-
-    // Helper method to calculate eggs in trays (assuming 30 eggs per tray)
-    public function calculateTrays()
-    {
-        $totalGoodEggs = $this->good_eggs;
-        $this->full_trays = floor($totalGoodEggs / 30);
-        $remaining = $totalGoodEggs % 30;
-        $this->{'1_2_trays'} = floor($remaining / 15);
-        $this->single_eggs = $remaining % 15;
-        return $this;
-    }
-
-    // Get the monetary value of collected eggs (can be used for reporting)
-    public function calculateValue($pricePerEgg)
-    {
-        return $this->good_eggs * $pricePerEgg;
     }
 }
