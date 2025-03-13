@@ -22,6 +22,52 @@
                 <span class="block sm:inline">{{ session('error') }}</span>
             </div>
         @endif
+        <!-- Filters with searchable dropdown -->
+<div class="bg-white shadow-md rounded-lg overflow-hidden mb-6 p-4">
+    <form action="{{ route('birds.index') }}" method="GET" class="flex flex-wrap gap-4 items-end">
+        <div x-data="{ searchTerm: '' }">
+            <label for="batch_id" class="block text-sm font-medium text-gray-700 mb-1">Filter by Batch ID</label>
+            <div class="relative">
+                <!-- Search field above dropdown -->
+                <input 
+                    type="text" 
+                    x-model="searchTerm" 
+                    placeholder="Search batches..." 
+                    class="mb-2 w-full shadow border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                >
+                
+                <!-- Standard dropdown with filtered options -->
+                <select 
+                    name="batch_id" 
+                    id="batch_id" 
+                    class="w-full shadow border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                >
+                    <option value="">All Batches</option>
+                    <template x-for="purchase in {{ json_encode($chickPurchases) }}.filter(item => 
+                        item.batch_id.toLowerCase().includes(searchTerm.toLowerCase()))" 
+                        :key="purchase.batch_id"
+                    >
+                        <option 
+                            :value="purchase.batch_id"
+                            :selected="purchase.batch_id == '{{ request('batch_id') }}'"
+                            x-text="purchase.batch_id"
+                        ></option>
+                    </template>
+                </select>
+            </div>
+        </div>
+        <div>
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Filter
+            </button>
+            @if(request()->has('batch_id') && request('batch_id') !== '')
+                <a href="{{ route('birds.index') }}" class="ml-2 text-blue-500 hover:text-blue-700">
+                    Clear
+                </a>
+            @endif
+        </div>
+    </form>
+</div>
 
         <!-- Birds Table -->
         <div class="bg-white shadow-md rounded-lg overflow-hidden">
@@ -81,7 +127,7 @@
                         @csrf
                         <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                             <h3 class="text-lg font-medium text-gray-900 mb-4"> Group Bird </h3>
-                            <!-- Select a Chick Purchase -->
+                            {{-- <!-- Select a Chick Purchase -->
                             <div class="mb-4">
                                 <label for="chick_purchase_id" class="block text-gray-700 text-sm font-bold mb-2">Bird Group</label>
                                 <select name="chick_purchase_id" id="chick_purchase_id" required
@@ -95,7 +141,19 @@
                                     @endforeach
                                 </select>
                             </div>
-                            
+                             --}}
+
+                            <!-- Select Chick Purchase -->
+                            <div class="mb-4">
+                                <label for="chick_purchase_id" class="block text-gray-700 text-sm font-bold mb-2">Bird</label>
+                                <select name="chick_purchase_id" id="chick_purchase_id" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" @change="updateAvailableBirds($event.target.value)">
+                                    <option value="">Select Batch</option>
+                                    @foreach($chickPurchases as $chickPurchase)
+                                        <option value="{{ $chickPurchase->id }}">{{ $chickPurchase->batch_id }} </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
                             <div x-show="availableBirds !== null" class="mb-4 p-3 bg-blue-50 rounded">
                                 <p class="text-sm text-blue-800">
                                     <span class="font-bold">Available birds:</span> <span x-text="availableBirds"></span>
@@ -266,6 +324,7 @@
                             console.error('Error fetching bird data:', error);
                         }
                     },
+
                 }
             }
         </script>

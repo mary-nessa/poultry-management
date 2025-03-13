@@ -17,42 +17,83 @@
         </div>
     @endif
 
+    <!-- Filters Form -->
+    <div class="mb-6 bg-white shadow-md rounded-lg p-4">
+        <form @submit.prevent="applyFilters" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label for="filter_name" class="block text-gray-700 text-sm font-bold mb-2">Name</label>
+                <input 
+                    type="text" 
+                    id="filter_name" 
+                    x-model="filters.name" 
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    placeholder="Filter by name..."
+                >
+            </div>
+            <div>
+                <label for="filter_location" class="block text-gray-700 text-sm font-bold mb-2">Location</label>
+                <input 
+                    type="text" 
+                    id="filter_location" 
+                    x-model="filters.location" 
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    placeholder="Filter by location..."
+                >
+            </div>
+            <div class="flex items-end">
+                <button 
+                    type="submit" 
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
+                >
+                    Apply Filters
+                </button>
+                <button 
+                    type="button" 
+                    @click="clearFilters" 
+                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+                >
+                    Clear
+                </button>
+            </div>
+        </form>
+    </div>
+
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Manager</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                @foreach($branches as $branch)
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $branch->name }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $branch->location }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            @if($branch->manager)
-                                {{ $branch->manager->name }}
-                            @else
-                                No Manager
-{{--                                <button @click="openAssignBranchModal('{{ $branch->id }}', '{{ $branch->name }}')" class="text-blue-600 hover:text-blue-900">Assign Manager</button>--}}
-                            @endif
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button @click="openShowModal('{{ $branch->id }}')" class="text-blue-600 hover:text-blue-900 mr-3">View</button>
-                            <button @click="openEditModal('{{ $branch->id }}')" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
-                            <form action="{{ route('branches.destroy', $branch) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this branch?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
-                            </form>
-                        </td>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Manager</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200" x-html="branchRows"></tbody>
+            </table>
+        </div>
+        
+        <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+            <div class="flex justify-between items-center">
+                <button 
+                    @click="prevPage" 
+                    :disabled="currentPage === 1" 
+                    class="px-4 py-2 border rounded disabled:opacity-50"
+                >
+                    Previous
+                </button>
+                <span>
+                    Page <span x-text="currentPage"></span> of <span x-text="totalPages"></span>
+                </span>
+                <button 
+                    @click="nextPage" 
+                    :disabled="currentPage === totalPages" 
+                    class="px-4 py-2 border rounded disabled:opacity-50"
+                >
+                    Next
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Create Branch Modal -->
@@ -62,7 +103,7 @@
                 <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                <form action="{{ route('branches.store') }}" method="POST">
+                <form action="{{ route('branches.store') }}" method="POST" @submit="handleCreateSubmit">
                     @csrf
                     <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                         <h3 class="text-lg font-medium text-gray-900 mb-4">Create New Branch</h3>
@@ -108,7 +149,6 @@
                             <label for="edit_location" class="block text-gray-700 text-sm font-bold mb-2">Location</label>
                             <input type="text" name="location" id="edit_location" x-model="editBranchData.location" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                         </div>
-
                         <div class="mb-4">
                             <label for="manager_id" class="block text-gray-700 text-sm font-bold mb-2">Manager</label>
                             <select name="manager_id" id="manager_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
@@ -152,14 +192,14 @@
                         </div>
                         <div>
                             <label class="text-sm font-medium text-gray-500">Manager</label>
-                            <p class="text-gray-900" x-text="showBranchData.manager ? showBranchData.manager.user.name : 'No Manager'"></p>
+                            <p class="text-gray-900" x-text="showBranchData.manager ? showBranchData.manager.name : 'No Manager'"></p>
                         </div>
                         <div>
                             <h4 class="text-lg font-medium text-gray-900 mb-2">Staff Members</h4>
                             <template x-if="showBranchData.users && showBranchData.users.length > 0">
                                 <ul class="space-y-2">
                                     <template x-for="user in showBranchData.users" :key="user.id">
-                                        <li class="text-gray-700" x-text="user.name "></li>
+                                        <li class="text-gray-700" x-text="user.name"></li>
                                     </template>
                                 </ul>
                             </template>
@@ -192,6 +232,14 @@ function branchManagement() {
         editBranchId: null,
         assignUserBranchId: null,
         assignUserBranchName: '',
+        currentPage: 1,
+        perPage: 10,
+        totalPages: 1,
+        branchRows: '',
+        filters: {
+            name: '',
+            location: ''
+        },
         editBranchData: {
             name: '',
             location: ''
@@ -229,19 +277,21 @@ function branchManagement() {
                 console.error('Error fetching branch data:', error);
             }
         },
-
-        // Method to open the assign-branch modal.
         openAssignBranchModal(branchId, branchName) {
             this.assignUserBranchId = branchId;
             this.assignUserBranchName = branchName;
             this.showAssignBranchModal = true;
         },
-
-        // Method to submit the assign-role form using fetch.
         async assignBranch() {
             event.preventDefault();
             const form = document.getElementById('branchesForm');
             const formData = new FormData(form);
+            const params = new URLSearchParams();
+            
+            for (const pair of formData.entries()) {
+                params.append(pair[0], pair[1]);
+            }
+            
             try {
                 const response = await fetch(form.action, {
                     method: 'POST',
@@ -254,14 +304,118 @@ function branchManagement() {
                 const data = await response.json();
                 if (data.status === 'success') {
                     this.showAssignBranchModal = false;
-                    window.location.reload();
+                    this.fetchBranches();
                 }
             } catch (error) {
-
                 console.error('Error:', error);
             }
-    }
-}
+        },
+        async fetchBranches() {
+            try {
+                const params = new URLSearchParams({
+                    page: this.currentPage,
+                    per_page: this.perPage,
+                    name: this.filters.name,
+                    location: this.filters.location
+                });
+                const response = await fetch(`/branches?${params.toString()}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                const data = await response.json();
+                
+                this.totalPages = data.pagination.last_page;
+                this.currentPage = data.pagination.current_page;
+                
+                this.branchRows = data.branches.map(branch => `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">${branch.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${branch.location}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            ${branch.manager ? branch.manager.name : 'No Manager'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex flex-wrap gap-2">
+                                <button @click="openShowModal('${branch.id}')" class="text-blue-600 hover:text-blue-900">View</button>
+                                <button @click="openEditModal('${branch.id}')" class="text-indigo-600 hover:text-indigo-900">Edit</button>
+                                <form action="/branches/${branch.id}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this branch?')">
+                                    <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').getAttribute('content')}">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error fetching branches:', error);
+            }
+        },
+        applyFilters() {
+            this.currentPage = 1;
+            this.fetchBranches();
+        },
+        clearFilters() {
+            this.filters.name = '';
+            this.filters.location = '';
+            this.currentPage = 1;
+            this.fetchBranches();
+        },
+        goToPage(page) {
+            if (page >= 1 && page <= this.totalPages) {
+                this.currentPage = page;
+                this.fetchBranches();
+            }
+        },
+        nextPage() {
+            if (this.currentPage < this.totalPages) {
+                this.currentPage++;
+                this.fetchBranches();
+            }
+        },
+        prevPage() {
+            if (this.currentPage > 1) {
+                this.currentPage--;
+                this.fetchBranches();
+            }
+        },
+        handleResize() {
+            const width = window.innerWidth;
+            if (width < 640) {
+                this.perPage = 5;
+            } else {
+                this.perPage = 10;
+            }
+            this.fetchBranches();
+        },
+        async handleCreateSubmit(event) {
+            event.preventDefault();
+            const form = event.target;
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    this.showCreateModal = false;
+                    this.fetchBranches();
+                }
+            } catch (error) {
+                console.error('Error creating branch:', error);
+            }
+        },
+        init() {
+            window.addEventListener('resize', this.handleResize.bind(this));
+            this.handleResize();
+            this.fetchBranches();
+        }
+    };
 }
 </script>
 @endpush

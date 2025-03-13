@@ -11,15 +11,43 @@ use Illuminate\Validation\ValidationException;
 
 class BranchController extends Controller
 {
-    public function index()
-    {
-        $branches = Branch::with(['manager', 'users'])->get();
-        $managers = User::where('branch_id', null)
-            ->whereHas('roles', function($query) {
-                $query->where('name', 'manager');
-            })->get();
-        return view('branches.index', compact('branches', 'managers'));
+    public function index(Request $request)
+{
+    $perPage = $request->input('per_page', 10);
+    $query = Branch::with(['manager', 'users']);
+
+    // Apply filters
+    if ($request->has('name') && $request->name !== '') {
+        $query->where('name', 'like', '%' . $request->name . '%');
     }
+
+    if ($request->has('location') && $request->location !== '') {
+        $query->where('location', 'like', '%' . $request->location . '%');
+    }
+
+    $branches = $query->paginate($perPage);
+    
+    $managers = User::where('branch_id', null)
+        ->whereHas('roles', function($query) {
+            $query->where('name', 'manager');
+        })->get();
+        
+    if ($request->ajax()) {
+        return response()->json([
+            'branches' => $branches->items(),
+            'pagination' => [
+                'total' => $branches->total(),
+                'per_page' => $branches->perPage(),
+                'current_page' => $branches->currentPage(),
+                'last_page' => $branches->lastPage(),
+                'from' => $branches->firstItem(),
+                'to' => $branches->lastItem()
+            ]
+        ]);
+    }
+
+    return view('branches.index', compact('branches', 'managers'));
+}
 
     public function create()
     {
@@ -37,6 +65,14 @@ class BranchController extends Controller
         ]);
 
         Branch::create($validated);
+        
+        if ($request->ajax()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Branch created successfully'
+            ]);
+        }
+        
         return redirect()->route('branches.index')->with('success', 'Branch created successfully.');
     }
 
@@ -48,7 +84,6 @@ class BranchController extends Controller
                 'manager_id' => 'required|exists:users,id',
             ]);
 
-            // Check if the manager is already assigned to a branch
             $existingManager = Branch::where('manager_id', $validated['manager_id'])
                 ->where('id', '!=', $validated['branch_id'])
                 ->first();
@@ -57,19 +92,16 @@ class BranchController extends Controller
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Manager is already assigned to another branch.'
-                ]);
+                ], 422);
             }
 
-            // Begin transaction
             DB::beginTransaction();
 
             try {
-                // Update user's branch
                 $user = User::findOrFail($validated['manager_id']);
                 $user->branch_id = $validated['branch_id'];
                 $user->save();
 
-                // Update branch's manager
                 $branch = Branch::findOrFail($validated['branch_id']);
                 $branch->manager_id = $validated['manager_id'];
                 $branch->save();
@@ -102,15 +134,12 @@ class BranchController extends Controller
 
     public function show(Branch $branch)
     {
-
         return response()->json($branch->load(['manager', 'users']));
     }
 
     public function edit(Branch $branch)
     {
-
-            return response()->json($branch);
-
+        return response()->json($branch);
     }
 
     public function update(Request $request, Branch $branch)
@@ -128,23 +157,47 @@ class BranchController extends Controller
         $branch->location = $validated['location'];
         $branch->save();
 
-//        $branch->update($validated);
+        if ($request->ajax()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Branch updated successfully'
+            ]);
+        }
+
         return redirect()->route('branches.index')->with('success', 'Branch updated successfully.');
     }
 
-    public function destroy(Branch $branch)
+    public function destroy(Branch $branch, Request $request)
     {
-        // Check if branch has any users
         if ($branch->users()->count() > 0) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Cannot delete branch with assigned users.'
+                ], 422);
+            }
             return back()->withErrors(['error' => 'Cannot delete branch with assigned users.']);
         }
 
-        // Check if branch has a manager
         if ($branch->manager) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Cannot delete branch with an assigned manager.'
+                ], 422);
+            }
             return back()->withErrors(['error' => 'Cannot delete branch with an assigned manager.']);
         }
 
         $branch->delete();
+        
+        if ($request->ajax()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Branch deleted successfully'
+            ]);
+        }
+
         return redirect()->route('branches.index')->with('success', 'Branch deleted successfully.');
     }
 }

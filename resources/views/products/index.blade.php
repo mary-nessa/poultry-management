@@ -24,7 +24,7 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Type</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Breed</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Measure</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Default Price</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Default Price (UGX)</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branch</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
@@ -35,7 +35,7 @@
                         <td class="px-6 py-4 whitespace-nowrap">{{ $product->product_type }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $product->breed }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $product->unit_measure }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">KES {{ number_format($product->default_price, 2) }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap"> {{ number_format($product->default_price, 0) }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $product->branch->name }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <button @click="openShowModal('{{ $product->id }}')" class="text-blue-600 hover:text-blue-900 mr-3">View</button>

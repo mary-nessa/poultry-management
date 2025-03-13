@@ -17,47 +17,65 @@
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                <span class="block sm:inline">{{ session('error') }}</span>
+            </div>
+        @endif
+
         <!-- Immunizations Table -->
         <div class="bg-white shadow-md rounded-lg overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bird Type</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vaccine</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Next Due Date</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                @foreach($immunizations as $immunization)
+            <div class="overflow-x-auto"> <!-- Makes the table responsive -->
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            {{ $immunization->chickPurchase->batch_id }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            {{ $immunization->vaccine->name ?? 'N/A' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            {{ \Carbon\Carbon::parse($immunization->immunization_date)->format('Y-m-d') }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            {{ \Carbon\Carbon::parse($immunization->next_due_date)->format('Y-m-d') }}
-                        </td>
-
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button @click="openShowModal('{{ $immunization->id }}')" class="text-blue-600 hover:text-blue-900 mr-3">View</button>
-                            <button @click="openEditModal('{{ $immunization->id }}')" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
-                            <form action="{{ route('bird-immunizations.destroy', $immunization) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this immunization record?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
-                            </form>
-                        </td>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bird Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vaccine</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Next Due Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
-                @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse($immunizations as $immunization)
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {{ $immunization->chickPurchase->batch_id }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {{ $immunization->vaccine->name ?? 'N/A' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {{ \Carbon\Carbon::parse($immunization->immunization_date)->format('Y-m-d') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {{ \Carbon\Carbon::parse($immunization->next_due_date)->format('Y-m-d') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button @click="openShowModal('{{ $immunization->id }}')" class="text-blue-600 hover:text-blue-900 mr-3">View</button>
+                                <button @click="openEditModal('{{ $immunization->id }}')" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
+                                <form action="{{ route('bird-immunizations.destroy', $immunization) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this immunization record?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                No immunization records found.
+                            </td>
+                        </tr>
+                    @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="px-6 py-4 bg-white border-t border-gray-200">
+                {{ $immunizations->links() }}
+            </div>
         </div>
 
         <!-- Create Immunization Modal -->
@@ -274,7 +292,7 @@
                         age_category: ''
                     },
                     showImmunizationData: {
-                        chickPurchase: null,
+                        chick_purchase: null, // Changed from chickPurchase to match JSON response
                         vaccine: null,
                         immunization_date: '',
                         next_due_date: '',
@@ -287,7 +305,6 @@
                     },
                     async openEditModal(immunizationId) {
                         this.editImmunizationId = immunizationId;
-                        console.log('Edit Immunization ID:', immunizationId);
                         try {
                             const response = await fetch(`{{ route('bird-immunizations.edit', ':immunizationId') }}`.replace(':immunizationId', immunizationId));
                             this.editImmunizationData = await response.json();

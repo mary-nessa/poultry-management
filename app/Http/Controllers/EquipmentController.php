@@ -7,9 +7,20 @@ use Illuminate\Http\Request;
 
 class EquipmentController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $equipment = Equipment::with('supplier')->get();
+        $search = $request->input('search');
+        
+        // Query builder with relationship
+        $query = Equipment::with('supplier');
+        
+        // Apply search filter if provided
+        if ($search) {
+            $query->where('name', 'LIKE', "%{$search}%");
+        }
+        
+        // Get paginated results
+        $equipment = $query->paginate(5)->withQueryString();
         $suppliers = Supplier::all(); // Fetch all suppliers
 
         return view('equipments.index', compact('equipment', 'suppliers'));

@@ -64,9 +64,15 @@
 
             <div class="mt-6 text-center">
                 <button type="submit" class="btn btn-success mt-3 py-2 px-6 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-300">Add Medicine</button>
+
+            <a href="{{ route('medicine.index') }}" class="mt-4 inline-block px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:ring-2 focus:ring-gray-400">Back to Medicines</a>
+            
             </div>
+
         </form>
     </div>
+
+    
 </div>
 
 <script>

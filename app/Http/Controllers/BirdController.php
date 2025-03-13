@@ -9,14 +9,26 @@ use App\Models\ChickPurchase;
 
 class BirdController extends Controller
 {
-    public function index()
-    {
-        $birds = Bird::with(['branch', 'chickPurchase'])->paginate(10);
-        $chickPurchases = ChickPurchase::all();
-        $branches = Branch::all();
-        return view('birds.index', compact('birds', 'branches', 'chickPurchases'));
+    public function index(Request $request)
+{
+    $query = Bird::with(['branch', 'chickPurchase']);
+    
+    // Add batch filter if provided
+    if ($request->has('batch_id') && $request->batch_id !== '') {
+        $query->whereHas('chickPurchase', function ($q) use ($request) {
+            $q->where('batch_id', $request->batch_id);
+        });
     }
 
+    $birds = $query->paginate(5);
+    $chickPurchases = ChickPurchase::all();
+    $branches = Branch::all();
+    
+    // Append query parameters to pagination links
+    $birds->appends($request->only('batch_id'));
+    
+    return view('birds.index', compact('birds', 'branches', 'chickPurchases'));
+}
     public function create()
     {
         // Empty method as we're using a modal for creation

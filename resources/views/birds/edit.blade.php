@@ -19,7 +19,8 @@
                         @foreach($chickPurchases as $purchase)
                             <option value="{{ $purchase->id }}" 
                                 {{ $bird->chick_purchase_id == $purchase->id ? 'selected' : '' }}>
-                                {{ $purchase->breed ?? ('Purchase ' . $purchase->id) }} - Batch: {{ $purchase->batch_id }}
+                                {{ $purchase->batch_id }} 
+                                {{-- {{ $purchase->breed ?? ('Purchase ' . $purchase->id) }} - Batch: {{ $purchase->batch_id }} --}}
                             </option>
                         @endforeach
                     </select>

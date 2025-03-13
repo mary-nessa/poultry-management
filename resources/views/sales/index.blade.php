@@ -24,7 +24,7 @@
                     {{-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th> --}}
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branch</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Buyer</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount (UGX)</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Status</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
@@ -36,7 +36,7 @@
                         <td class="px-6 py-4 whitespace-nowrap">{{ $sale->branch->name }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $sale->buyer ? $sale->buyer->name : 'Walk-in' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            KES {{ number_format($sale->items->sum('total_amount'), 2) }}
+                            {{ number_format($sale->items->sum('total_amount'), 0) }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $sale->is_paid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
@@ -97,7 +97,7 @@
                                     <select x-model="item.product_id" :name="'items['+index+'][product_id]'" required class="shadow appearance-none border rounded flex-1 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                                         <option value="">Select Product</option>
                                         @foreach($products as $product)
-                                            <option value="{{ $product->id }}">{{ $product->product_type }} - KES {{ number_format($product->default_price, 2) }}</option>
+                                            <option value="{{ $product->id }}">{{ $product->product_type }} - UGX {{ number_format($product->default_price, 0) }}</option>
                                         @endforeach
                                     </select>
                                     <input type="number" x-model="item.quantity" :name="'items['+index+'][quantity]'" placeholder="Qty" required class="shadow appearance-none border rounded w-20 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">

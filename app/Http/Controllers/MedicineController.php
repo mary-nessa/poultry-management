@@ -8,10 +8,10 @@ use Illuminate\Http\Request;
 
 class MedicineController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         
-        $medicines = Medicine::with('supplier')->get();
+        $medicines = Medicine::with('supplier')->paginate(5);
         return view('medicine.index', compact('medicines'));
     }
 
