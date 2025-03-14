@@ -50,11 +50,48 @@
 
         <!-- Sidebar content -->
 <nav class="px-4 py-4 space-y-2">
+    {{-- make the dashboards dynamic based on the user's role and permissions --}}
 
-    <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 rounded-lg transition-colors duration-200">
+    @php
+    $user = auth()->user();
+    $roles = $user->roles->pluck('name')->toArray();
+    @endphp
+
+    @if(in_array('admin', $roles))
+        <a href="{{ route('admin.dashboard') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 rounded-lg transition-colors duration-200">
+            <i class="fas fa-home w-5 h-5 mr-3"></i>
+            <span>Dashboard</span>
+        </a>
+    @endif
+
+    @if(in_array('manager', $roles))
+        <a href="{{ route('manager.dashboard') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 rounded-lg transition-colors duration-200">
+            <i class="fas fa-home w-5 h-5 mr-3"></i>
+            <span>Dashboard</span>
+        </a>
+    @endif
+
+    @if(in_array('salesmanager', $roles))
+        <a href="{{ route('salesmanager.dashboard') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 rounded-lg transition-colors duration-200">
+            <i class="fas fa-home w-5 h-5 mr-3"></i>
+            <span>Dashboard</span>
+        </a>
+    @endif
+
+    @if(in_array('worker', $roles))
+        <a href="{{ route('worker.dashboard') }}" class="flex items
+        -center px-4 py-2 text-gray-700 hover:bg-blue-50 rounded-lg transition-colors duration-200">
+            <i class="fas fa-home w-5 h-5 mr-3"></i>
+            <span>Dashboard</span>
+        </a>
+    @endif
+
+
+
+    {{-- <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 rounded-lg transition-colors duration-200">
         <i class="fas fa-home w-5 h-5 mr-3"></i>
         <span>Dashboard</span>
-    </a>
+    </a> --}}
   
     <!-- User Management -->
     @if(auth()->user()->can('manage role') || auth()->user()->can('manage user') || auth()->user()->can('manage branch'))

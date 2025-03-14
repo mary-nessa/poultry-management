@@ -25,13 +25,12 @@ class SaleController extends Controller
     {
         $branches  = Branch::all();
         $buyers    = Buyer::all();
-        $products  = Product::all();
+        $products  = Product::where('quantity', '>', 0)->get();
         return view('sales.create', compact('branches', 'buyers', 'products'));
     }
 
     public function store(Request $request)
     {
-        
         try {
             DB::beginTransaction();
 
@@ -51,7 +50,14 @@ class SaleController extends Controller
             }else{
                 $validated['is_paid'] = false;
             }
-        
+
+            // Check product quantities before creating sale
+            foreach ($validated['items'] as $item) {
+                $product = Product::find($item['product_id']);
+                if (!$product || $product->quantity < $item['quantity']) {
+                    throw new \Exception("Insufficient quantity for product: {$product->product_type}");
+                }
+            }
 
             // Create the sale
             $sale = Sale::create([
@@ -63,7 +69,7 @@ class SaleController extends Controller
                 'balance' => $validated['balance']
             ]);
 
-            // Create sale items
+            // Create sale items and update product quantities
             foreach ($validated['items'] as $item) {
                 SaleItem::create([
                     'sale_id' => $sale->id,
@@ -72,6 +78,11 @@ class SaleController extends Controller
                     'unit_price' => $item['unit_price'],
                     'total_amount' => $item['quantity'] * $item['unit_price']
                 ]);
+
+                // Update product quantity
+                $product = Product::find($item['product_id']);
+                $product->quantity -= $item['quantity'];
+                $product->save();
             }
 
             DB::commit();
@@ -79,7 +90,7 @@ class SaleController extends Controller
         } catch (\Exception $e) {
             \Log::error($e->getMessage());
             DB::rollBack();
-            return back()->with('error', 'Error creating sale: ' . $e->getMessage());
+            return back()->with('error', 'Error creating sale: ' . $e->getMessage())->withInput();
         }
     }
 

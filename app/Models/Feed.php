@@ -13,7 +13,7 @@ class Feed extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'feed_type_id', 'quantity_kg', 'purchase_date', 'unit_cost', 'total_cost', 'supplier_id',
+        'feed_type_id', 'quantity_kg', 'purchase_date', 'unit_cost', 'total_cost', 'supplier_id', 'branch_id',
     ];
 
     public function supplier(): BelongsTo
@@ -21,13 +21,18 @@ class Feed extends Model
         return $this->belongsTo(Supplier::class);
     }
 
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
+    }
+
     public function expenses(): HasMany
     {
         return $this->hasMany(Expense::class);
     }
 
-    public function feedType()
+    public function feedType(): BelongsTo
     {
-        return $this->belongsTo(FeedType::class, 'feed_type_id'); // Specify the foreign key if it's not 'feed_type_id'
+        return $this->belongsTo(FeedType::class);
     }
 }

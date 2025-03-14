@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Sale extends Model
 {
-
     use HasUUID;
 
     public $incrementing = false;
@@ -23,6 +22,8 @@ class Sale extends Model
         'is_paid',
         'balance'
     ];
+
+    protected $appends = ['total_amount'];
 
     public function branch(): BelongsTo
     {
@@ -39,5 +40,13 @@ class Sale extends Model
         return $this->hasMany(SaleItem::class);
     }
 
+    public function getTotalAmountAttribute()
+    {
+        return $this->items->sum('total_amount');
+    }
 
+    public function scopeWithTotalAmount($query)
+    {
+        return $query->withSum('items', 'total_amount');
+    }
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\BuyerController;
 use App\Http\Controllers\BreedController;
 use App\Http\Controllers\ChickPurchaseController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TransferController;
 use App\Http\Controllers\EggCollectionController;
 use App\Http\Controllers\EquipmentController;
@@ -23,18 +24,14 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\FeedingLogController;
 use App\Http\Controllers\HealthCheckController;
 use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\RolePermissionController;
-
-
-
 
 Route::get('/', function () {
     return view('welcome');
 });
+
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/authenticate', [LoginController::class, 'login'])->name('authenticate');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -42,22 +39,28 @@ Route::post('/authenticate', [LoginController::class, 'login'])->name('authentic
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
-    // Dashboard home page
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
     // Profile page
     Route::get('/profile', [UserController::class, 'index'])->name('profile');
-
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
 
-
 Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin/dashboard', [DashboardController::class, 'admin'])->name('admin.dashboard');    
     Route::resource('roles', RolePermissionController::class);
     Route::get('/role-permissions', [RolePermissionController::class, 'splitView'])->name('roles.split');
-
     Route::post('/roles/{role}/assign-permissions', [RolePermissionController::class, 'assignPermissions'])->name('roles.assignPermissions');
+});
+
+Route::middleware(['auth', 'role:manager'])->group(function () {
+    Route::get('/manager/dashboard', [DashboardController::class, 'manager'])->name('manager.dashboard');
+});
+
+Route::middleware(['auth', 'role:salesmanager'])->group(function () {
+    Route::get('/salesmanager/dashboard', [DashboardController::class, 'salesManager'])->name('salesmanager.dashboard');
+});
+
+Route::middleware(['auth', 'role:worker'])->group(function () {
+    Route::get('/worker/dashboard', [DashboardController::class, 'worker'])->name('worker.dashboard');
 });
 
 Route::middleware(['auth', 'permission:manage transfer'])->group(function () {
@@ -67,8 +70,6 @@ Route::middleware(['auth', 'permission:manage transfer'])->group(function () {
 Route::middleware(['auth', 'permission:manage expense'])->group(function () {
     Route::resource('expenses', ExpenseController::class);
 });
-
-
 
 Route::middleware(['auth', 'permission:manage sale'])->group(function () {
     Route::resource('sales', SaleController::class);
@@ -145,13 +146,9 @@ Route::middleware(['auth', 'permission:manage equipment'])->group(function () {
     Route::resource('equipments', EquipmentController::class);
 });
 
-
-
 Route::middleware(['auth', 'permission:manage product'])->group(function () {
     Route::resource('products', ProductController::class);
 });
-
-
 
 Route::middleware(['auth', 'permission:manage role'])->group(function () {
     Route::resource('roles', RolePermissionController::class);

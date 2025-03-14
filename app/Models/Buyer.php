@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Traits\HasUUID;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Buyer extends Model
 {
@@ -18,6 +19,7 @@ class Buyer extends Model
         'phone_number',
         'email',
         'buyer_type',
+        'branch_id'
     ];
 
     public function getContactInfoAttribute()
@@ -28,5 +30,10 @@ class Buyer extends Model
     public function sales(): HasMany
     {
         return $this->hasMany(Sale::class);
+    }
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
     }
 }

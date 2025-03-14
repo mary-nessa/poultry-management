@@ -17,7 +17,8 @@ class ProductController extends Controller
 
     public function create()
     {
-        return view('products.create');
+        $branches = Branch::all();
+        return view('products.create', compact('branches'));
     }
 
     public function store(Request $request)
@@ -27,6 +28,7 @@ class ProductController extends Controller
             'breed' => 'required|string',
             'unit_measure' => 'required|string',
             'default_price' => 'required|numeric|min:0',
+            'quantity' => 'required|integer|min:0',
             'branch_id' => 'required|exists:branches,id'
         ]);
 
@@ -42,16 +44,18 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        return response()->json($product);
+        $branches = Branch::all();
+        return view('products.edit', compact('product', 'branches'));
     }
 
     public function update(Request $request, Product $product)
     {
         $validated = $request->validate([
-            'product_type' => 'required|string|unique:products,product_type,'.$product->id,
+            'product_type' => 'required|string|unique:products,product_type,' . $product->id,
             'breed' => 'required|string',
             'unit_measure' => 'required|string',
             'default_price' => 'required|numeric|min:0',
+            'quantity' => 'required|integer|min:0',
             'branch_id' => 'required|exists:branches,id'
         ]);
 

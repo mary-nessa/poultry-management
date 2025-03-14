@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Buyer;
+use App\Models\Branch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
@@ -49,15 +50,18 @@ class BuyerController extends Controller
 
     public function index()
     {
-        $buyers = Buyer::paginate(5);
-        return view('buyers.index', compact('buyers'));
+        $buyers = Buyer::with('branch')->paginate(5);
+        $branches = Branch::all();
+        return view('buyers.index', compact('buyers', 'branches'));
     }
 
     public function create()
     {
         $countryCodes = $this->getCountryCodes();
-        return view('buyers.create', compact('countryCodes'));
+        $branches = Branch::all();
+        return view('buyers.create', compact('countryCodes', 'branches'));
     }
+
     public function store(Request $request)
     {
         $countryCodes = $this->getCountryCodes();
@@ -79,6 +83,7 @@ class BuyerController extends Controller
                 ],
                 'email' => 'nullable|email|max:255|unique:buyers,email',
                 'buyer_type' => 'required|in:WALKIN,REGULAR',
+                'branch_id' => 'required|exists:branches,id',
             ]);
     
             Buyer::create($validated);
@@ -118,6 +123,7 @@ class BuyerController extends Controller
                 ],
                 'email' => 'nullable|email|max:255|unique:buyers,email,' . $id,
                 'buyer_type' => 'required|in:WALKIN,REGULAR',
+                'branch_id' => 'required|exists:branches,id',
             ]);
     
             $buyer->update($validated);
@@ -155,6 +161,7 @@ class BuyerController extends Controller
     {
         $buyer = Buyer::findOrFail($id);
         $countryCodes = $this->getCountryCodes();
-        return view('buyers.edit', compact('buyer', 'countryCodes'));
+        $branches = Branch::all();
+        return view('buyers.edit', compact('buyer', 'countryCodes', 'branches'));
     }
 }
