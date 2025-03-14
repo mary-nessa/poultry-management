@@ -10,7 +10,7 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::with('branch')->get();
+        $products = Product::with('branch')->paginate(5);
         $branches = Branch::all();
         return view('products.index', compact('products', 'branches'));
     }

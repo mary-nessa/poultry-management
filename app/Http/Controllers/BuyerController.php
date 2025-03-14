@@ -4,72 +4,157 @@ namespace App\Http\Controllers;
 
 use App\Models\Buyer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class BuyerController extends Controller
 {
-    // Display a listing of buyers
+
+    private function getCountryCodes()
+    {
+        try {
+            $response = Http::get('https://restcountries.com/v3.1/all?fields=name,idd');
+            if ($response->successful()) {
+                $countries = $response->json();
+                $countryCodes = [];
+                foreach ($countries as $country) {
+                    if (isset($country['idd']) && isset($country['idd']['root']) && isset($country['idd']['suffixes'])) {
+                        foreach ($country['idd']['suffixes'] as $suffix) {
+                            $code = $country['idd']['root'] . $suffix;
+                            $countryCodes['+' . $code] = $country['name']['common'];
+                        }
+                    }
+                }
+                return $countryCodes;
+            }
+            return $this->getFallbackCountryCodes(); // Fallback if API fails
+        } catch (\Exception $e) {
+            return $this->getFallbackCountryCodes(); // Fallback on error
+        }
+    }
+    
+
+    private function getFallbackCountryCodes()
+    {
+        // Fallback country codes in case API fails
+        return [
+            '+1' => 'United States',
+            '+44' => 'United Kingdom',
+            '+91' => 'India',
+            '+33' => 'France',
+            '+61' => 'Australia',
+        ];
+    }
+
     public function index()
     {
-        $buyers = Buyer::all();
+        $buyers = Buyer::paginate(5);
         return view('buyers.index', compact('buyers'));
     }
 
-    // Show the form for creating a new buyer
     public function create()
     {
-        return view('buyers.create');
+        $countryCodes = $this->getCountryCodes();
+        return view('buyers.create', compact('countryCodes'));
     }
-
-    // Store a newly created buyer in the database
     public function store(Request $request)
-{
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'contact_info' => 'nullable|string',
-        'buyer_type' => 'required|in:WALKIN,REGULAR',  // This ensures only valid enum values
-    ]);
+    {
+        $countryCodes = $this->getCountryCodes();
     
-    $buyer = Buyer::create([
-        'name' => $validated['name'],
-        'contact_info' => $validated['contact_info'],
-        'buyer_type' => $validated['buyer_type'],  // This will now be either WALKIN or REGULAR
-    ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'phone_country_code' => 'required|in:' . implode(',', array_keys($countryCodes)),
+                'phone_number' => [
+                    'required',
+                    'regex:/^[1-9][0-9]{8,14}$/', // Prevents leading zero
+                    function ($attribute, $value, $fail) use ($request) {
+                        if (Buyer::where('phone_country_code', $request->phone_country_code)
+                                ->where('phone_number', $value)
+                                ->exists()) {
+                            $fail('This phone number is already registered.');
+                        }
+                    },
+                ],
+                'email' => 'nullable|email|max:255|unique:buyers,email',
+                'buyer_type' => 'required|in:WALKIN,REGULAR',
+            ]);
+    
+            Buyer::create($validated);
+    
+            return redirect()->route('buyers.index')
+                ->with('success', 'Buyer created successfully.');
+    
+        } catch (\Exception $e) {
+            Log::error('Error creating buyer: ' . $e->getMessage());
+    
+            return redirect()->back()
+                ->withInput() // Keep old input values
+                ->with('error', 'Failed to create buyer,buyer already in the system. Please try again.');
+        }
+    }
+    
+    public function update(Request $request, $id)
+    {
+        $countryCodes = $this->getCountryCodes();
+        $buyer = Buyer::findOrFail($id);
+    
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'phone_country_code' => 'required|in:' . implode(',', array_keys($countryCodes)),
+                'phone_number' => [
+                    'required',
+                    'regex:/^[1-9][0-9]{8,14}$/', // Prevents leading zero
+                    function ($attribute, $value, $fail) use ($request, $id) {
+                        if (Buyer::where('phone_country_code', $request->phone_country_code)
+                                ->where('phone_number', $value)
+                                ->where('id', '!=', $id) // Exclude current buyer
+                                ->exists()) {
+                            $fail('This phone number is already registered.');
+                        }
+                    },
+                ],
+                'email' => 'nullable|email|max:255|unique:buyers,email,' . $id,
+                'buyer_type' => 'required|in:WALKIN,REGULAR',
+            ]);
+    
+            $buyer->update($validated);
+    
+            return redirect()->route('buyers.index')
+                ->with('success', 'Buyer updated successfully!');
+    
+        } catch (\Exception $e) {
+            Log::error('Error updating buyer: ' . $e->getMessage());
+    
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Failed to update buyer. Please try again.');
+        }
+    }
+    
+    public function destroy($id)
+    {
+        try {
+            $buyer = Buyer::findOrFail($id);
+            $buyer->delete();
+    
+            return redirect()->route('buyers.index')
+                ->with('success', 'Buyer deleted successfully!');
+        } catch (\Exception $e) {
+            Log::error('Error deleting buyer: ' . $e->getMessage());
+    
+            return redirect()->route('buyers.index')
+                ->with('error', 'Failed to delete buyer. Please try again.');
+        }
+    }
+    
 
-    return redirect()->route('buyers.index')
-        ->with('success', 'Buyer created successfully');
-}
-    // Show the form for editing the specified buyer
     public function edit($id)
     {
         $buyer = Buyer::findOrFail($id);
-        return view('buyers.edit', compact('buyer'));
-    }
-
-    // Update the specified buyer in the database
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'contact_info' => 'required|string',
-            'buyer_type' => 'required|string',
-        ]);
-
-        $buyer = Buyer::findOrFail($id);
-        $buyer->update([
-            'name' => $request->input('name'),
-            'contact_info' => $request->input('contact_info'),
-            'buyer_type' => $request->input('buyer_type'),
-        ]);
-
-        return redirect()->route('buyers.index')->with('success', 'Buyer updated successfully!');
-    }
-
-    // Remove the specified buyer from the database
-    public function destroy($id)
-    {
-        $buyer = Buyer::findOrFail($id);
-        $buyer->delete();
-
-        return redirect()->route('buyers.index')->with('success', 'Buyer deleted successfully!');
+        $countryCodes = $this->getCountryCodes();
+        return view('buyers.edit', compact('buyer', 'countryCodes'));
     }
 }

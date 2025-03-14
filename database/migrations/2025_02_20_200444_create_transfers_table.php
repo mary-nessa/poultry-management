@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('transfers', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('type');
-            $table->string('breed');
+            $table->foreignId('breed_id')->nullable();
+            $table->foreign('breed_id')->references('id')->on('breeds')->onDelete('cascade');
             $table->string('status')->default('pending');
             $table->foreignUuid('user_id')->constrained('users');
             $table->foreignUuid('from_branch_id')->constrained('branches');

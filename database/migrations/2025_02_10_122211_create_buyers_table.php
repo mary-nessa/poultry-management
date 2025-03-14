@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('buyers', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
-            $table->string('contact_info')->nullable();
-            $table->enum('buyer_type', ['WALKIN', 'REGULAR'])->default('WALKIN');
+            $table->string('phone_country_code');
+            $table->string('phone_number');
+            $table->string('email')->nullable();
+            $table->enum('buyer_type', ['WALKIN', 'REGULAR']);
             $table->timestamps();
         });
     }

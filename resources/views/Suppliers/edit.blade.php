@@ -1,59 +1,39 @@
-<!-- resources/views/suppliers/edit.blade.php -->
 @extends('layouts.app')
 
 @section('content')
-<div class="container mx-auto px-4 py-6">
-    <div class="max-w-lg mx-auto">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold">Edit Supplier</h1>
-            <a href="{{ route('suppliers.index') }}" class="text-blue-500 hover:text-blue-700">
-                Back to List
-            </a>
-        </div>
+    <div class="container mx-auto p-6">
+        <h2 class="text-2xl font-bold mb-4">Edit Supplier</h2>
 
-        @if($errors->any())
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                <ul>
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <form action="{{ route('suppliers.update', $supplier) }}" method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <form action="{{ route('suppliers.update', $supplier) }}" method="POST" class="bg-white p-6 rounded shadow-md">
             @csrf
             @method('PUT')
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="name">
-                    Name
-                </label>
-                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    id="name"
-                    type="text"
-                    name="name"
-                    value="{{ old('name', $supplier->name) }}"
-                    required>
+
+            <label class="block mb-2">Name:</label>
+            <input type="text" name="name" value="{{ old('name', $supplier->name) }}" class="w-full border p-2 rounded mb-3" required>
+
+            <label class="block mb-2">Phone:</label>
+            <div class="flex gap-2 mb-3">
+                <select id="country_code" name="phone_country_code" class="border p-2 rounded w-1/3">
+                    @foreach($countryCodes as $code => $country)
+                        <option value="{{ $code }}" {{ $supplier->phone_country_code == $code ? 'selected' : '' }}>
+                            {{ $country }} ({{ $code }})
+                        </option>
+                    @endforeach
+                </select>
+                <input type="text" id="phone_number" name="phone_number" value="{{ old('phone_number', $supplier->phone_number) }}" class="border p-2 rounded w-2/3" placeholder="Enter phone number" required>
             </div>
 
-            <div class="mb-6">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="contact_info">
-                    Contact Information
-                </label>
-                <textarea
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    id="contact_info"
-                    name="contact_info"
-                    rows="3"
-                    required>{{ old('contact_info', $supplier->contact_info) }}</textarea>
-            </div>
+            <label class="block mb-2">Email:</label>
+            <input type="email" name="email" value="{{ old('email', $supplier->email) }}" class="w-full border p-2 rounded mb-3">
 
-            <div class="flex items-center justify-end">
-                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
-                    Update Supplier
-                </button>
-            </div>
+            <label class="block mb-2">Branch:</label>
+            <select name="branch_id" class="w-full border p-2 rounded mb-3" required>
+                @foreach($branches as $id => $name)
+                    <option value="{{ $id }}" {{ $supplier->branch_id == $id ? 'selected' : '' }}>{{ $name }}</option>
+                @endforeach
+            </select>
+
+            <button type="submit" class="bg-yellow-500 text-white px-4 py-2 rounded">Update Supplier</button>
         </form>
     </div>
-</div>
 @endsection

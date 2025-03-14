@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Breed;
+use App\Models\Branch;
 use Illuminate\Http\Request;
 
 class BreedController extends Controller

@@ -14,7 +14,7 @@ class SaleController extends Controller
 {
     public function index()
     {
-        $sales = Sale::with(['branch', 'buyer', 'items.product'])->get();
+        $sales = Sale::with(['branch', 'buyer', 'items.product'])->paginate(5);
         $branches = Branch::all();
         $buyers = Buyer::all();
         $products = Product::all();

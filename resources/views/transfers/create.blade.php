@@ -20,10 +20,15 @@
                 @error('type') <div class="text-red-500">{{ $message }}</div> @enderror
             </div>
 
-            <div class="mb-4" id="breed-container" >
-                <label for="breed" class="block text-sm font-medium text-gray-700">Breed</label>
-                <input type="text" id="breed" name="breed" class="mt-1 block w-full border-gray-300 rounded-md" placeholder="Enter breed" value="{{ old('breed') }}">
-                @error('breed') <div class="text-red-500">{{ $message }}</div> @enderror
+            <div class="mb-4" id="breed-container">
+                <label for="breed_id" class="block text-sm font-medium text-gray-700">Breed</label>
+                <select id="breed_id" name="breed_id" class="mt-1 block w-full border-gray-300 rounded-md">
+                    <option value="">Select Breed</option>
+                    @foreach ($breeds as $breed)
+                        <option value="{{ $breed->id }}" {{ old('breed_id') == $breed->id ? 'selected' : '' }}>{{ $breed->name }}</option>
+                    @endforeach
+                </select>
+                @error('breed_id') <div class="text-red-500">{{ $message }}</div> @enderror
             </div>
 
             <div class="mb-4">
@@ -31,7 +36,7 @@
                 <select id="from_branch_id" name="from_branch_id" class="mt-1 block w-full border-gray-300 rounded-md" required>
                     <option value="">Select Branch</option>
                     @foreach ($branches as $branch)
-                        <option value="{{ $branch->id }}" {{ old('from_branch_id') === $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
+                        <option value="{{ $branch->id }}" {{ old('from_branch_id') == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
                     @endforeach
                 </select>
                 @error('from_branch_id') <div class="text-red-500">{{ $message }}</div> @enderror
@@ -42,21 +47,22 @@
                 <select id="to_branch_id" name="to_branch_id" class="mt-1 block w-full border-gray-300 rounded-md" required>
                     <option value="">Select Branch</option>
                     @foreach ($branches as $branch)
-                        <option value="{{ $branch->id }}" {{ old('to_branch_id') === $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
+                        <option value="{{ $branch->id }}" {{ old('to_branch_id') == $branch->id ? 'selected' : '' }}>{{ $branch->name }}</option>
                     @endforeach
                 </select>
                 @error('to_branch_id') <div class="text-red-500">{{ $message }}</div> @enderror
             </div>
 
-            <div class="mb-4">
+            {{-- <div class="mb-4">
                 <label for="user_id" class="block text-sm font-medium text-gray-700">User</label>
-                <input type="text" id="user_id" name="user_id" class="mt-1 block w-full border-gray-300 rounded-md" value="{{ auth()->user()->name }}" disabled>
-            </div>
+                <input type="text" class="mt-1 block w-full border-gray-300 rounded-md" value="{{ auth()->user()->name }}" disabled>
+                <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
+            </div> --}}
 
             <div class="mb-4">
                 <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
                 <select id="status" name="status" class="mt-1 block w-full border-gray-300 rounded-md" required>
-                    <option value="pending" {{ old('status') === 'pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="pending" {{ old('status', 'pending') === 'pending' ? 'selected' : '' }}>Pending</option>
                     <option value="approved" {{ old('status') === 'approved' ? 'selected' : '' }}>Approved</option>
                     <option value="rejected" {{ old('status') === 'rejected' ? 'selected' : '' }}>Rejected</option>
                 </select>
@@ -74,12 +80,12 @@
                 <textarea id="notes" name="notes" class="mt-1 block w-full border-gray-300 rounded-md">{{ old('notes') }}</textarea>
                 @error('notes') <div class="text-red-500">{{ $message }}</div> @enderror
             </div>
-
+            <a href="{{ route('transfers.index') }}" class="bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400 transition duration-200">Back to List</a>
             <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded">Create Transfer</button>
         </form>
     </div>
 
-    {{-- <script>
+    <script>
         document.getElementById('type').addEventListener('change', function () {
             var breedContainer = document.getElementById('breed-container');
             if (this.value === 'birds') {
@@ -91,5 +97,5 @@
 
         // Trigger the event to show/hide breed field based on initial type value
         document.getElementById('type').dispatchEvent(new Event('change'));
-    </script> --}}
+    </script>
 @endsection

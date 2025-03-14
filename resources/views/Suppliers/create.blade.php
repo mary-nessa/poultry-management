@@ -3,51 +3,65 @@
 
 @section('title', 'Add New Supplier')
 
+
 @section('content')
-<div class="container mx-auto px-4 py-6 flex justify-center">
-    <div class="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
-        <div class="flex justify-between items-center mb-6 border-b pb-3">
-            <h1 class="text-2xl font-bold text-gray-800">Add New Supplier</h1>
-            <a href="{{ route('suppliers.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold transition">&larr; Back</a>
-        </div>
 
-        @if($errors->any())
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                <ul>
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+@if ($errors->any())
+    <div class="bg-red-500 text-white p-4 rounded mb-4">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 
-        <form action="{{ route('suppliers.store') }}" method="POST" class="space-y-4">
+    <div class="container mx-auto p-6">
+        <h2 class="text-2xl font-bold mb-4">Add New Supplier</h2>
+
+        <form action="{{ route('suppliers.store') }}" method="POST" class="bg-white p-6 rounded shadow-md">
             @csrf
-            <div>
-                <label class="block text-gray-700 text-sm font-semibold mb-1" for="name">Supplier Name</label>
-                <input class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring focus:ring-blue-300 focus:outline-none" 
-                    id="name" 
-                    type="text" 
-                    name="name" 
-                    value="{{ old('name') }}" 
-                    placeholder="Enter supplier name" 
+            <label class="block mb-2">Name:</label>
+            <input type="text" name="name" class="w-full border p-2 rounded mb-3" required>
+
+            <label class="block mb-2">Phone:</label>
+            <div class="flex gap-2 mb-3">
+                <select id="country_code" name="phone_country_code" class="border p-2 rounded w-1/3">
+                    @foreach($countryCodes as $code => $country)
+                        <option value="{{ $code }}">{{ $country }} ({{ $code }})</option>
+                    @endforeach
+                </select>
+                <input type="text" id="phone_number" name="phone_number"
+                    class="border p-2 rounded w-2/3"
+                    placeholder="Enter phone number"
                     required>
             </div>
 
-            <div>
-                <label class="block text-gray-700 text-sm font-semibold mb-1" for="contact_info">Contact Information</label>
-                <textarea class="w-full px-4 py-2 border rounded-lg shadow-sm focus:ring focus:ring-blue-300 focus:outline-none resize-none" 
-                    id="contact_info" 
-                    name="contact_info" 
-                    rows="4" 
-                    placeholder="Enter contact details"
-                    required>{{ old('contact_info') }}</textarea>
-            </div>
+            <label class="block mb-2">Email:</label>
+            <input type="email" name="email" class="w-full border p-2 rounded mb-3">
 
-            <div class="flex justify-end">
-                <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition shadow-md">Create Supplier</button>
-            </div>
+            <label class="block mb-2">Branch:</label>
+            <select name="branch_id" class="w-full border p-2 rounded mb-3" required>
+                @foreach($branches as $id => $name)
+                    <option value="{{ $id }}">{{ $name }}</option>
+                @endforeach
+            </select>
+
+            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Save Supplier</button>
         </form>
     </div>
-</div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            new TomSelect("#country_code", { create: false, sortField: "text" });
+    
+            // Prevent leading zero in phone number
+            document.getElementById("phone_number").addEventListener("input", function (e) {
+                if (this.value.startsWith("0")) {
+                    this.value = this.value.replace(/^0+/, "");
+                }
+            });
+        });
+    </script>
+    
+
 @endsection

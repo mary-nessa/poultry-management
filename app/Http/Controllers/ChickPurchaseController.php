@@ -28,12 +28,11 @@ namespace App\Http\Controllers;
             if ($request->has('branch') && !empty($request->branch)) {
                 $query->where('branch_id', $request->branch);
             }
-            
-            if ($request->has('breed') && !empty($request->breed)) {
-                $query->whereHas('breed', function ($q) use ($request) {
-                    $q->where('name', 'like', '%' . $request->breed . '%');
-                });
-            }
+
+           // In the index method of ChickPurchaseController.php
+                if ($request->has('breed') && !empty($request->breed)) {
+                    $query->where('breed_id', $request->breed);
+                }
             
             if ($request->has('date_from') && !empty($request->date_from)) {
                 $query->whereDate('purchase_date', '>=', $request->date_from);

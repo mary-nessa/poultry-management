@@ -13,7 +13,7 @@ class Transfer extends Model
 
     protected $fillable = [
         'type',
-        'breed',
+        'breed_id',
         'from_branch_id',
         'to_branch_id',
         'user_id',
@@ -39,5 +39,10 @@ class Transfer extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function breed(): BelongsTo
+    {
+        return $this->belongsTo(Breed::class);
     }
 }

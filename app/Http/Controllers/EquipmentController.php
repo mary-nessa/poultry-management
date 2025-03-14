@@ -126,4 +126,39 @@ class EquipmentController extends Controller
         $equipment = Equipment::findOrFail($id);  // Get the equipment by its ID
         return view('equipments.show', compact('equipment'));  // Pass to the show view
     }
+    private function getCountryCodes()
+    {
+        try {
+            $response = Http::get('https://restcountries.com/v3.1/all?fields=name,idd');
+            if ($response->successful()) {
+                $countries = $response->json();
+                $countryCodes = [];
+                foreach ($countries as $country) {
+                    if (isset($country['idd']) && isset($country['idd']['root']) && isset($country['idd']['suffixes'])) {
+                        foreach ($country['idd']['suffixes'] as $suffix) {
+                            $code = $country['idd']['root'] . $suffix;
+                            $countryCodes['+' . $code] = $country['name']['common'];
+                        }
+                    }
+                }
+                return $countryCodes;
+            }
+            return $this->getFallbackCountryCodes(); // Fallback if API fails
+        } catch (\Exception $e) {
+            return $this->getFallbackCountryCodes(); // Fallback on error
+        }
+    }
+
+    private function getFallbackCountryCodes()
+    {
+        return [
+            '+1' => 'United States',
+            '+44' => 'United Kingdom',
+            '+91' => 'India',
+            '+33' => 'France',
+            '+61' => 'Australia',
+        ];
+    }
+
+
 }
