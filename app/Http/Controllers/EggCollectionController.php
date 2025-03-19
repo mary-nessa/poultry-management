@@ -15,7 +15,7 @@ class EggCollectionController extends Controller
     {
         $eggCollections = EggCollection::with(['collectedBy', 'branch'])
             ->orderBy('collection_date', 'desc')
-            ->paginate(10);
+            ->paginate(5);
         $branches = Branch::all();
         $users = User::all();
         return view('egg_collections.index', compact('eggCollections', 'branches', 'users'));

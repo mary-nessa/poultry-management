@@ -63,42 +63,64 @@ class BuyerController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $countryCodes = $this->getCountryCodes();
-    
-        try {
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'phone_country_code' => 'required|in:' . implode(',', array_keys($countryCodes)),
-                'phone_number' => [
-                    'required',
-                    'regex:/^[1-9][0-9]{8,14}$/', // Prevents leading zero
-                    function ($attribute, $value, $fail) use ($request) {
-                        if (Buyer::where('phone_country_code', $request->phone_country_code)
-                                ->where('phone_number', $value)
-                                ->exists()) {
-                            $fail('This phone number is already registered.');
-                        }
-                    },
-                ],
-                'email' => 'nullable|email|max:255|unique:buyers,email',
-                'buyer_type' => 'required|in:WALKIN,REGULAR',
-                'branch_id' => 'required|exists:branches,id',
-            ]);
-    
-            Buyer::create($validated);
-    
-            return redirect()->route('buyers.index')
-                ->with('success', 'Buyer created successfully.');
-    
-        } catch (\Exception $e) {
-            Log::error('Error creating buyer: ' . $e->getMessage());
-    
-            return redirect()->back()
-                ->withInput() // Keep old input values
-                ->with('error', 'Failed to create buyer,buyer already in the system. Please try again.');
-        }
+{
+    // Get country codes
+    $countryCodes = $this->getCountryCodes();
+    Log::info('Country Codes Loaded: ' . json_encode($countryCodes));
+
+    // Get the default branch of the logged-in user
+    $user = auth()->user();
+    $defaultBranchId = $user->branch_id; // Assuming 'branch_id' is stored in users table
+
+    try {
+        // Validate input
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'phone_country_code' => 'required|in:' . implode(',', array_keys($countryCodes)),
+            'phone_number' => [
+                'required',
+                'regex:/^[1-9][0-9]{8,14}$/',
+                function ($attribute, $value, $fail) use ($request) {
+                    Log::info('Checking phone: ' . $request->phone_country_code . ' ' . $value);
+                    if (Buyer::where('phone_country_code', $request->phone_country_code)
+                            ->where('phone_number', $value)
+                            ->exists()) {
+                        Log::warning('Duplicate phone number detected.');
+                        $fail('This phone number is already registered.');
+                    }
+                },
+            ],
+            'email' => 'nullable|email|max:255|unique:buyers,email',
+            'buyer_type' => 'required|in:WALKIN,REGULAR',
+        ]);
+
+        Log::info('Validation Passed. Data: ' . json_encode($validated));
+
+        // Assign the default branch
+        $validated['branch_id'] = $defaultBranchId;
+        Log::info("Using Default Branch ID: $defaultBranchId");
+
+        // Create Buyer
+        Buyer::create($validated);
+        Log::info('Buyer Created Successfully.');
+
+        return redirect()->route('buyers.index')
+            ->with('success', 'Buyer created successfully.');
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        Log::error('Validation failed: ' . json_encode($e->errors()));
+        return redirect()->back()
+            ->withInput()
+            ->withErrors($e->errors());
+    } catch (\Exception $e) {
+        Log::error('Unexpected Error Creating Buyer: ' . $e->getMessage());
+        return redirect()->back()
+            ->withInput()
+            ->with('error', 'Failed to create buyer. Please try again.');
     }
+}
+
+
     
     public function update(Request $request, $id)
     {

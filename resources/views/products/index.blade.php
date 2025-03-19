@@ -1,7 +1,21 @@
 @extends('layouts.app')
 
 @section('title', 'Products')
+@if(session('error'))
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+        <span class="block sm:inline">{{ session('error') }}</span>
+    </div>
+@endif
 
+@if($errors->any())
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 @section('content')
 <div class="container mx-auto px-4 py-6" x-data="productManagement()">
     <div class="flex flex-col sm:flex-row justify-between items-center mb-6">

@@ -4,9 +4,9 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-6" x-data="eggCollectionManagement()">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">Egg Collections</h1>
-        <button @click="openCreateModal()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">    
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-900 mb-4 sm:mb-0">Egg Collections</h1>
+        <button @click="openCreateModal()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
             New Collection
         </button>
     </div>
@@ -17,45 +17,61 @@
         </div>
     @endif
 
+    <!-- Responsive Table Wrapper -->
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Collection Date</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branch</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Good Eggs</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Full Trays</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Half Trays</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Singles</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                @foreach($eggCollections as $collection)
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $collection->collection_date ? $collection->collection_date->format('M d, Y H:i') : $collection->created_at->format('M d, Y H:i') }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $collection->branch->name }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $collection->good_eggs }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $collection->full_trays }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $collection->{'1_2_trays'} }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $collection->single_eggs }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button @click="openShowModal('{{ $collection->id }}')" class="text-blue-600 hover:text-blue-900 mr-3">View</button>
-                            <button @click="openEditModal('{{ $collection->id }}')" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
-                            <form action="{{ route('egg-collections.destroy', $collection) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
-                            </form>
-                        </td>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Collection Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branch</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Good Eggs</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Full Trays</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Half Trays</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Singles</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse($eggCollections as $collection)
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ $collection->collection_date ? $collection->collection_date->format('M d, Y H:i') : $collection->created_at->format('M d, Y H:i') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $collection->branch->name }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $collection->good_eggs }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $collection->full_trays }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $collection->{'1_2_trays'} }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $collection->single_eggs }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                                    <button @click="openShowModal('{{ $collection->id }}')" class="text-blue-600 hover:text-blue-900">View</button>
+                                    <button @click="openEditModal('{{ $collection->id }}')" class="text-indigo-600 hover:text-indigo-900">Edit</button>
+                                    <form action="{{ route('egg-collections.destroy', $collection) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">No egg collections found.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="px-6 py-4 bg-white border-t border-gray-200">
+            {{ $eggCollections->links() }}
+        </div>
     </div>
 
     <!-- Create Modal -->
-    <div x-show="showCreateModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+    <div x-show="showCreateModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;" @click.away="showCreateModal = false">
         <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 transition-opacity" aria-hidden="true">
                 <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
@@ -79,7 +95,9 @@
                         <div class="mb-4">
                             <label for="collection_date" class="block text-gray-700 text-sm font-bold mb-2">Collection Date</label>
                             <input type="datetime-local" name="collection_date" id="collection_date" required 
-                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                   @input="checkDate()">
+                            <p x-show="isFutureDate" class="text-red-600 text-sm mt-1">Future dates are not allowed.</p>
                         </div>
 
                         <div class="mb-4">
@@ -115,7 +133,10 @@
                         </div>
                     </div>
                     <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        <button type="submit" 
+                                :disabled="isFutureDate" 
+                                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                                :class="{'bg-blue-600 hover:bg-blue-700': !isFutureDate, 'bg-gray-400 cursor-not-allowed': isFutureDate}">
                             Save
                         </button>
                         <button type="button" @click="showCreateModal = false" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
@@ -128,7 +149,7 @@
     </div>
 
     <!-- Edit Modal -->
-    <div x-show="showEditModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+    <div x-show="showEditModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;" @click.away="showEditModal = false">
         <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 transition-opacity" aria-hidden="true">
                 <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
@@ -153,7 +174,9 @@
                         <div class="mb-4">
                             <label for="edit_collection_date" class="block text-gray-700 text-sm font-bold mb-2">Collection Date</label>
                             <input type="datetime-local" name="collection_date" id="edit_collection_date" x-model="editCollectionData.collection_date" required 
-                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                   @input="checkEditDate()">
+                            <p x-show="isEditFutureDate" class="text-red-600 text-sm mt-1">Future dates are not allowed.</p>
                         </div>
 
                         <div class="mb-4">
@@ -189,7 +212,10 @@
                         </div>
                     </div>
                     <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        <button type="submit" 
+                                :disabled="isEditFutureDate" 
+                                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                                :class="{'bg-blue-600 hover:bg-blue-700': !isEditFutureDate, 'bg-gray-400 cursor-not-allowed': isEditFutureDate}">
                             Update
                         </button>
                         <button type="button" @click="showEditModal = false" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
@@ -201,8 +227,8 @@
         </div>
     </div>
 
-    <!-- Show Modal -->
-    <div x-show="showShowModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+    <!-- Show Modal (unchanged) -->
+    <div x-show="showShowModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;" @click.away="showShowModal = false">
         <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 transition-opacity" aria-hidden="true">
                 <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
@@ -219,7 +245,6 @@
                         </button>
                     </div>
 
-                    <!-- Collection Information -->
                     <div class="mb-6">
                         <h4 class="text-sm font-medium text-gray-900 mb-2">Collection Information</h4>
                         <div class="bg-gray-50 rounded-md p-4">
@@ -229,10 +254,9 @@
                         </div>
                     </div>
 
-                    <!-- Eggs Summary -->
                     <div class="mb-6">
                         <h4 class="text-sm font-medium text-gray-900 mb-2">Eggs Summary</h4>
-                        <div class="grid grid-cols-2 gap-4 bg-gray-50 rounded-md p-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50 rounded-md p-4">
                             <div>
                                 <p class="text-sm text-gray-600">Total Eggs: <span class="text-gray-900" x-text="showCollectionData.total_eggs"></span></p>
                                 <p class="text-sm text-gray-600 mt-1">Good Eggs: <span class="text-gray-900" x-text="showCollectionData.good_eggs"></span></p>
@@ -264,6 +288,8 @@
             showEditModal: false,
             showShowModal: false,
             editCollectionId: null,
+            isFutureDate: false,
+            isEditFutureDate: false,
             editCollectionData: {
                 branch_id: '',
                 collection_date: '',
@@ -321,8 +347,9 @@
 
             openCreateModal() {
                 this.showCreateModal = true;
-                // Set default collection date to current date and time
+                this.isFutureDate = false;
                 document.getElementById('collection_date').value = new Date().toISOString().slice(0, 16);
+                this.checkDate();
             },
 
             async openEditModal(collectionId) {
@@ -335,6 +362,7 @@
                         collection_date: data.collection_date ? new Date(data.collection_date).toISOString().slice(0, 16) : new Date().toISOString().slice(0, 16)
                     };
                     this.calculateEditTotalEggs();
+                    this.checkEditDate();
                     this.showEditModal = true;
                 } catch (error) {
                     console.error('Error fetching collection data:', error);
@@ -350,6 +378,18 @@
                 } catch (error) {
                     console.error('Error fetching collection data:', error);
                 }
+            },
+
+            checkDate() {
+                const selectedDate = new Date(document.getElementById('collection_date').value);
+                const now = new Date();
+                this.isFutureDate = selectedDate > now;
+            },
+
+            checkEditDate() {
+                const selectedDate = new Date(this.editCollectionData.collection_date);
+                const now = new Date();
+                this.isEditFutureDate = selectedDate > now;
             },
 
             formatDate(dateString) {

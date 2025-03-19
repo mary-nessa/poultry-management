@@ -21,7 +21,7 @@ class SupplierController extends Controller
                     if (isset($country['idd']) && isset($country['idd']['root']) && isset($country['idd']['suffixes'])) {
                         foreach ($country['idd']['suffixes'] as $suffix) {
                             $code = $country['idd']['root'] . $suffix;
-                            $countryCodes['+' . $code] = $country['name']['common'];
+                            $countryCodes[$code] = $country['name']['common'];
                         }
                     }
                 }

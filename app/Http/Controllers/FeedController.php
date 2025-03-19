@@ -47,21 +47,25 @@ class FeedController extends Controller
         $feedTypes = FeedType::all();
         return view('feeds.create', compact('suppliers', 'feedTypes'));
     }
-
     public function store(Request $request)
     {
-        // Check if the request contains an array of feeds (from cart)
+        // Get the logged-in user and their branch
+        $user = auth()->user();
+        $defaultBranchId = $user->branch_id; // Assuming users have a branch_id field
+    
+        // Check if multiple feeds are submitted (cart-style submission)
         if ($request->has('feeds') && is_array($request->input('feeds'))) {
             $feeds = $request->input('feeds');
+    
             $validator = Validator::make($feeds, [
                 '*.feed_type_id' => 'required|exists:feed_types,id',
                 '*.quantity_kg' => 'required|numeric|min:0.01',
                 '*.unit_cost' => 'required|numeric|min:0.01',
                 '*.purchase_date' => ['required', 'date', 'before_or_equal:' . now()->format('Y-m-d')],
                 '*.supplier_id' => 'nullable|exists:suppliers,id',
-                '*.notes' => 'nullable|string|max:255', // Optional validation for notes
+                '*.notes' => 'nullable|string|max:255',
             ]);
-
+    
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
@@ -69,23 +73,16 @@ class FeedController extends Controller
                     'errors' => $validator->errors()
                 ], 422);
             }
-
+    
             try {
                 foreach ($feeds as $feedData) {
                     $feedData['total_cost'] = $feedData['quantity_kg'] * $feedData['unit_cost'];
                     $feedData['purchase_date'] = Carbon::parse($feedData['purchase_date'])->format('Y-m-d');
-                    
-                    Feed::create([
-                        'feed_type_id' => $feedData['feed_type_id'],
-                        'quantity_kg' => $feedData['quantity_kg'],
-                        'unit_cost' => $feedData['unit_cost'],
-                        'total_cost' => $feedData['total_cost'],
-                        'purchase_date' => $feedData['purchase_date'],
-                        'supplier_id' => $feedData['supplier_id'] ?? null,
-                        'notes' => $feedData['notes'] ?? null,
-                    ]);
+                    $feedData['branch_id'] = $defaultBranchId; // Assign default branch
+    
+                    Feed::create($feedData);
                 }
-
+    
                 return response()->json([
                     'success' => true,
                     'message' => 'Feeds recorded successfully'
@@ -97,7 +94,7 @@ class FeedController extends Controller
                 ], 500);
             }
         } else {
-            // Handle single feed submission (for backward compatibility or other forms)
+            // Handle single feed submission
             $validated = $request->validate([
                 'feed_type_id' => 'required|exists:feed_types,id',
                 'quantity_kg' => 'required|numeric|min:0.01',
@@ -106,16 +103,17 @@ class FeedController extends Controller
                 'supplier_id' => 'nullable|exists:suppliers,id',
                 'notes' => 'nullable|string|max:255',
             ]);
-
+    
             $validated['total_cost'] = $validated['quantity_kg'] * $validated['unit_cost'];
             $validated['purchase_date'] = Carbon::parse($validated['purchase_date'])->format('Y-m-d');
-
+            $validated['branch_id'] = $defaultBranchId; // Assign default branch
+    
             Feed::create($validated);
-            
+    
             return redirect()->route('feeds.index')->with('success', 'Feed record has been created successfully.');
         }
     }
-
+    
     public function show(Feed $feed)
     {
         $feed->load('supplier', 'feedType');

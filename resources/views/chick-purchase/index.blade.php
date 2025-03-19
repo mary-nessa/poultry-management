@@ -79,7 +79,7 @@
                     <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branch</th>
+                        {{-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branch</th> --}}
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Breed</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Purchase Date</th>
@@ -90,7 +90,7 @@
                     @foreach($chickPurchases as $index => $purchase)
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $chickPurchases->firstItem() + $index }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $purchase->branch->name }}</td>
+                            {{-- <td class="px-6 py-4 whitespace-nowrap">{{ $purchase->branch->name }}</td> --}}
                             <td class="px-6 py-4 whitespace-nowrap">{{ $purchase->breed->name }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ $purchase->quantity }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ date('d-m-Y', strtotime($purchase->purchase_date)) }}</td>
